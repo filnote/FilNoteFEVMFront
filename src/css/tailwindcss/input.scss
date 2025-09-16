@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bg-video {
+  @apply relative;
+}
+.bg-video .video {
+  @apply absolute inset-0 w-full h-full object-cover;
+}
+.bg-video::after {
+  @apply absolute inset-0 w-full h-full bg-black/70 z-10;
+  content: '';
+}
+
+.bg-video .title-box {
+  @apply h-[450px] z-20 relative container flex flex-col  justify-center;
+}
