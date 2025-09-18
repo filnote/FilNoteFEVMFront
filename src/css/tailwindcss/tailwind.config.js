@@ -6,7 +6,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#0090ff',
+        primary: '#000000',
         secondary: '#ff9f50',
         tertiary: '#000000',
         quaternary: '#000000',
@@ -1069,4 +1069,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};

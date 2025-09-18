@@ -1,4 +1,4 @@
-interface Note {
+export interface Note {
   id: bigint;
   targetAmount: bigint;
   creator: string;
@@ -7,4 +7,15 @@ interface Note {
   status: number;
 }
 
-export type { Note };
+export type ContractArg = string | number | bigint | boolean;
+
+export interface WriteArgs {
+  functionName: string;
+  args: ContractArg[];
+  value?: bigint;
+  gasLimit?: bigint;
+}
+
+export interface WriteContractResult {
+  hash: string;
+}

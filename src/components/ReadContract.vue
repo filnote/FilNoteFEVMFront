@@ -7,8 +7,9 @@
 import { Contract, JsonRpcProvider } from 'ethers';
 import { Network } from 'src/common/const';
 import { FilNoteABI, FilNoteAddress } from 'src/common/FilNoteABI';
+import { type ContractArg } from 'src/common/types';
 
-type ContractArg = string | number | bigint | boolean;
+
 type ReadArgs = {
   functionName: string;
   args: ContractArg[];
@@ -19,7 +20,6 @@ function read(args: ReadArgs) {
   const contract = new Contract(FilNoteAddress, FilNoteABI, rpcProvider);
   const contractMethod = contract[args.functionName];
   if (typeof contractMethod === 'function') {
-    console.log(args.args);
     return contractMethod(...args.args);
   }
   throw new Error(`Function ${args.functionName} not found on contract`);
