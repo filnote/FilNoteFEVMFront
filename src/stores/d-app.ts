@@ -5,12 +5,16 @@ export const useDAppStore = defineStore('d-app', {
   state: () => ({
     address: '',
     addressShort: '',
+    ownerAddress: '',
   }),
 
   actions: {
     setAddress(address: string) {
       this.address = address;
       this.addressShort = handleAddress(address);
+    },
+    setOwnerAddress(address: string) {
+      this.ownerAddress = address;
     },
   },
 });

@@ -42,7 +42,6 @@ onMounted(() => {
 });
 const readContract = ref<{ read: (args: ReadArgs) => Promise<unknown> }>();
 async function getNotes() {
-  console.log(readContract);
   try {
     notes.value = await readContract.value?.read({ functionName: 'getNotes', args: [0, 10] }) as Note[];
   } catch (error) {

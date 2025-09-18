@@ -6,6 +6,10 @@ export interface Note {
   interestRateBps: number;
   status: number;
 }
+export type ReadArgs = {
+  functionName: string;
+  args: ContractArg[];
+};
 
 export type ContractArg = string | number | bigint | boolean;
 

@@ -11,6 +11,7 @@
       <slot name="connected"></slot>
     </template>
   </template>
+
 </template>
 
 <script setup lang="ts">
@@ -18,6 +19,7 @@ import { useDAppStore } from 'src/stores/d-app';
 import { ref, watch } from 'vue';
 import { emptyString } from 'src/common/tools';
 import { useAppKit, useAppKitAccount } from '@reown/appkit/vue';
+import { contractRead } from 'src/common/dApp';
 
 defineProps({
   showType: {
@@ -34,7 +36,16 @@ const loading = ref(false);
 watch(accountData, (newVal) => {
   if (!newVal.isConnected) return;
   dAppStore.value.setAddress(`${newVal.address}`);
+  void getOwnerAddress();
 }, { deep: true });
+
+
+
+async function getOwnerAddress() {
+  const result = await contractRead({ functionName: 'owner', args: [] }) as string;
+  console.log('ownerAddress', result);
+  dAppStore.value.setOwnerAddress(`${result}`);
+}
 
 
 function openConnectWallet() {

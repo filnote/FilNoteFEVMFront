@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { formatEther, parseEther } from 'ethers';
 import { ErrorDecoder } from 'ethers-decode-error';
+import Swal from 'sweetalert2';
 
 export const emptyString = function (str: unknown) {
   return typeof str === 'undefined' || str == null || str === '';
@@ -67,4 +68,38 @@ export async function handleEthErr(err: object & { message: string }) {
 
 export const filToWei = function (fil: number | string) {
   return parseEther(fil.toString());
+};
+
+export const swalAlert = {
+  warning: (message: string) => {
+    void Swal.fire({
+      icon: 'warning',
+      title: 'Warning',
+      text: message,
+    });
+  },
+  error: (message: string) => {
+    void Swal.fire({
+      icon: 'error',
+      customClass: {
+        confirmButton:
+          'q-btn q-btn-item non-selectable no-outline  q-btn--rectangle bg-negative text-white q-btn--unelevated q-btn--actionable q-focusable q-hoverable ',
+      },
+      title: 'Error',
+      text: message,
+      confirmButtonText: `<span class="q-focus-helper" tabindex="-1"></span><span class="q-btn__content text-center col items-center q-anchor--skip justify-center row">I know</span>`,
+    });
+  },
+  success: (message: string) => {
+    void Swal.fire({
+      icon: 'success',
+      customClass: {
+        confirmButton:
+          'q-btn q-btn-item non-selectable no-outline  q-btn--rectangle bg-primary text-white q-btn--unelevated q-btn--actionable q-focusable q-hoverable ',
+      },
+      title: 'Success',
+      text: message,
+      confirmButtonText: `<span class="q-focus-helper" tabindex="-1"></span><span class="q-btn__content text-center col items-center q-anchor--skip justify-center row">I know</span>`,
+    });
+  },
 };

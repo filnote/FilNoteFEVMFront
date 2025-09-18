@@ -1,10 +1,10 @@
 <template>
-  <q-card class="relative w-[380px]">
+  <q-card flat class="relative w-[380px]">
     <slot name="body" :props="{ write: writeContract, loading }"></slot>
     <q-banner v-if="transactionError" class="bg-red-100 text-red-500 break-words break-all leading-loose text-xs">
       {{ transactionError }}
     </q-banner>
-    <q-inner-loading :showing="loading">
+    <q-inner-loading :showing="loading" v-if="showBoxLoading">
       <q-spinner-radio size="1rem" color="primary" />
     </q-inner-loading>
   </q-card>
@@ -40,7 +40,7 @@ import { useAppKitProvider } from '@reown/appkit/vue';
 import { BrowserProvider, Contract, type Eip1193Provider } from 'ethers';
 import { Network } from 'src/common/const';
 import { FilNoteABI, FilNoteAddress } from 'src/common/FilNoteABI';
-import { handleAddress, handleEthErr } from 'src/common/tools';
+import { handleAddress, handleEthErr, swalAlert } from 'src/common/tools';
 import type { WriteContractResult, WriteArgs } from 'src/common/types';
 import { ref } from 'vue';
 
@@ -57,6 +57,14 @@ const props = defineProps({
   userSubmit: {
     type: Function,
     default: () => { },
+  },
+  showBoxLoading: {
+    type: Boolean,
+    default: true,
+  },
+  alertError: {
+    type: Boolean,
+    default: false,
   },
 })
 
@@ -86,6 +94,7 @@ function closeWriteContract() {
 async function writeContract(args: WriteArgs) {
   try {
     loading.value = true;
+    transactionError.value = '';
     const { walletProvider } = useAppKitProvider('eip155');
     const etherProvider = new BrowserProvider(walletProvider as Eip1193Provider);
     const signer = await etherProvider.getSigner();
@@ -108,12 +117,17 @@ async function writeContract(args: WriteArgs) {
     confirmSuccessful();
     return result.value;
   } catch (error) {
-    transactionError.value = await handleEthErr(error as object & { message: string });
-    const vmErrorMatch = /vm error=\[Error\((.*?)\)\]/.exec(transactionError.value)
+    let errorMessage = await handleEthErr(error as object & { message: string });
+    const vmErrorMatch = /vm error=\[Error\((.*?)\)\]/.exec(errorMessage)
     if (vmErrorMatch && vmErrorMatch[1]) {
-      transactionError.value = vmErrorMatch[1]
+      errorMessage = vmErrorMatch[1]
     }
     loading.value = false;
+    if (props.alertError) {
+      swalAlert.error(errorMessage);
+      return;
+    }
+    transactionError.value = errorMessage;
   }
 }
 
