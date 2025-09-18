@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+body,
+html {
+  background-color: #f8f8f8;
+}
+.q-list--separator > .q-item-type + .q-item-type {
+  border-color: rgb(179 179 179 / 12%);
+}
+
 .bg-video {
   @apply relative;
 }
@@ -15,4 +23,23 @@
 
 .bg-video .title-box {
   @apply h-[450px] z-20 relative container flex flex-col  justify-center;
+}
+
+.note-item {
+  @apply rounded-lg overflow-hidden;
+  &.CLOSED {
+    @apply opacity-50 cursor-not-allowed;
+  }
+  .note-item-section {
+    @apply relative p-0;
+    .avatar {
+      @apply bg-black text-white text-xl font-mono;
+      @apply flex flex-col items-center justify-center;
+      @apply p-3   space-y-2 absolute top-0 bottom-0 left-0;
+      @apply w-[150px];
+    }
+    .info {
+      @apply ml-[150px];
+    }
+  }
 }
