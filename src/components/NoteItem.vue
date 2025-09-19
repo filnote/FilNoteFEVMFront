@@ -1,73 +1,108 @@
 <template>
   <q-card flat class="note-item" :class="NoteStatus[item.status as NoteStatusKey]">
-    <q-card-section class="note-item-section">
-      <div class="avatar">
-        <span class="text-sm">#{{ item.id }}</span>
-        <span class="amount">{{ weiToEther(item.targetAmount) }} FIL</span>
-        <q-chip :label="NoteStatus[item.status as NoteStatusKey]" :color="NoteStatus[item.status as NoteStatusKey]" />
+    <q-card-section>
+      <div class="text-lg font-bold font-mono">
+        #{{ item.id }}
       </div>
-      <div class="info">
-        <q-list separator>
-          <q-item>
-            <q-item-section side>
-              Creator
-            </q-item-section>
-            <q-item-section>
-              {{ handleAddress(item.creator) }}
-            </q-item-section>
-          </q-item>
-          <q-item>
-            <q-item-section side>
-              Borrowing period
-            </q-item-section>
-            <q-item-section>
-              {{ item.borrowingDays }} days
-            </q-item-section>
-          </q-item>
-          <q-item>
-            <q-item-section side>
-              Annual interest rate
-            </q-item-section>
-            <q-item-section>
-              {{ bpsToPercentage(item.interestRateBps) }} %
-            </q-item-section>
-          </q-item>
-          <WriteContract :show-box-loading="false" :alert-error="true">
-            <template #body="{ props }">
-              <q-item>
-                <q-item-section>
-                  <div class="flex items-center space-x-3">
-                    <q-btn :loading="props.loading" outline v-if="showCloseButton(item.creator, item.status)"
-                      label="Close Note" color="negative" unelevated @click="closeNote(props.write, item.id)"
-                      type="button" size="md" />
-                    <q-btn label="Subscription" color="primary" unelevated size="md"
-                      v-if="showSubscriptionButton(item.creator, item.status)" />
-                    <q-btn label="Review" color="primary" unelevated size="md" v-if="showReviewButton(item.status)" />
-                  </div>
-                </q-item-section>
-              </q-item>
-            </template>
-          </WriteContract>
-        </q-list>
+      <div class="text-sm text-meta">
+        Borrow for <span class="text-secondary font-bold">{{ item.borrowingDays }} days</span> at <span
+          class="text-green-500 font-bold">{{ bpsToPercentage(item.interestRateBps) }} % APR</span>
+      </div>
+    </q-card-section>
+    <q-card-section class="note-item-section py-0">
+      <div class="relative">
+        <div class="avatar">
+          <span class="amount">{{ weiToEther(item.targetAmount) }} FIL</span>
+          <q-chip :label="NoteStatus[item.status as NoteStatusKey]" :color="NoteStatus[item.status as NoteStatusKey]" />
+        </div>
+        <div class="info">
+          <q-list separator dense>
+            <q-item>
+              <q-item-section side>
+                Creator
+              </q-item-section>
+              <q-item-section>
+                {{ handleAddress(item.creator) }}
+              </q-item-section>
+            </q-item>
+            <!-- income -->
+            <q-item>
+              <q-item-section side>
+                Income
+              </q-item-section>
+              <q-item-section>
+                {{ weiToEther(calculateInterest(item.targetAmount, item.interestRateBps, item.borrowingDays),
+                  true) }}
+                FIL
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section side>
+                Legal contracts hash
+              </q-item-section>
+              <q-item-section>
+                {{ handleAddress(item.contractHash, 6, 4) }}
+              </q-item-section>
+            </q-item>
+            <!-- investor -->
+            <q-item>
+              <q-item-section side>
+                Investor
+              </q-item-section>
+              <q-item-section>
+                {{ handleAddress(item.investor) }}
+              </q-item-section>
+            </q-item>
+            <WriteContract :show-box-loading="false" :alert-error="true">
+              <template #body="{ props }">
+                <q-item>
+                  <q-item-section>
+                    <div class="flex items-center space-x-3">
+                      <q-btn :loading="props.loading" outline v-if="showCloseButton(item.creator, item.status)"
+                        label="Close Note" color="negative" unelevated @click="closeNote(props.write, item.id)"
+                        type="button" size="md" />
+                      <q-btn label="Subscription" color="secondary" unelevated size="md"
+                        v-if="showSubscriptionButton(item.creator, item.status)" />
+                      <q-btn label="Review" color="primary" unelevated size="md" v-if="showReviewButton(item.status)"
+                        @click="openReviewNote" />
+                    </div>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </WriteContract>
+          </q-list>
+        </div>
       </div>
     </q-card-section>
   </q-card>
+  <ReviewNote :refresh-data="refreshData" ref="reviewNoteRef" />
 </template>
 <script setup lang="ts">
 import type { WriteArgs, WriteContractResult, Note } from 'src/common/types';
 import { ref, type PropType } from 'vue';
 import { NoteStatus, type NoteStatusKey } from 'src/common/const';
-import { handleAddress, weiToEther, bpsToPercentage } from 'src/common/tools';
+import { handleAddress, weiToEther, bpsToPercentage, calculateInterest } from 'src/common/tools';
 import { useDAppStore } from 'src/stores/d-app';
 import WriteContract from 'components/WriteContract.vue';
-defineProps({
+import ReviewNote from 'components/ReviewNote.vue';
+const props = defineProps({
   item: {
     type: Object as PropType<Note>,
     required: true,
   },
+  refreshData: {
+    type: Function,
+    default: () => { },
+  },
 });
 
 const dAppStore = ref(useDAppStore());
+const reviewNoteRef = ref<InstanceType<typeof ReviewNote>>();
+
+function openReviewNote() {
+  console.log(reviewNoteRef)
+  reviewNoteRef.value?.showReviewNote(props.item.id);
+}
 
 function showCloseButton(address: string, status: number) {
   const statusKey = NoteStatus[status as NoteStatusKey];

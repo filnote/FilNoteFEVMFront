@@ -19,7 +19,7 @@
         <template #body>
           <div class="grid grid-cols-3 gap-5">
             <template v-for="(item, index) in notes" v-bind:key="index">
-              <NoteItem :item="item" />
+              <NoteItem :item="item" :refresh-data="getNotes" />
             </template>
           </div>
         </template>

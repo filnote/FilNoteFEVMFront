@@ -5,7 +5,8 @@
   </template>
   <template v-else>
     <template v-if="showType === 'button'">
-      <q-btn :loading="loading" color="white" text-color="black" icon="wallet" :label="dAppStore.addressShort" />
+      <q-btn @click="openAccount" :loading="loading" color="white" text-color="black" icon="wallet"
+        :label="dAppStore.addressShort" />
     </template>
     <template v-else>
       <slot name="connected"></slot>
@@ -55,6 +56,12 @@ function openConnectWallet() {
   });
 }
 
+function openAccount() {
+  loading.value = true;
+  void open({
+    view: 'Account',
+  });
+}
 </script>
 
 <style scoped></style>

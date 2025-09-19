@@ -5,6 +5,8 @@ export interface Note {
   borrowingDays: number;
   interestRateBps: number;
   status: number;
+  contractHash: string;
+  investor: string;
 }
 export type ReadArgs = {
   functionName: string;

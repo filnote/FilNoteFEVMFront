@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { formatEther, parseEther } from 'ethers';
+import { formatEther, parseEther, ZeroAddress } from 'ethers';
 import { ErrorDecoder } from 'ethers-decode-error';
 import Swal from 'sweetalert2';
 
@@ -7,13 +7,23 @@ export const emptyString = function (str: unknown) {
   return typeof str === 'undefined' || str == null || str === '';
 };
 
+export const isZeroAddress = function (address: string) {
+  return address === '0x0000000000000000000000000000000000000000000000000000000000000000';
+};
+
 export const handleAddress = function (str: string, before = 6, after = 4) {
+  if (emptyString(str)) {
+    return '...';
+  }
+  if (isZeroAddress(str) || str === ZeroAddress) {
+    return '...';
+  }
   let newStr = str.substring(0, before) + '...';
   newStr += str.substring(str.length - after, str.length);
   return newStr;
 };
 
-export const weiToEther = function (wei: bigint, processingAmount = false) {
+export const weiToEther = function (wei: bigint | number | string, processingAmount = false) {
   const val = formatEther(wei);
   if (processingAmount) {
     return processingBigAmount(val);
@@ -35,6 +45,20 @@ export const bpsToPercentage = function (bps: bigint | number | string) {
   const bpsBigNumber = new BigNumber(bps.toString());
   const percentage = bpsBigNumber.dividedBy(100);
   return percentage.toNumber();
+};
+
+export const calculateInterest = function (
+  principalWei: number | string | bigint,
+  annualRateBps: number | string | bigint,
+  days: number,
+): string {
+  const principalBN = new BigNumber(principalWei.toString());
+  const rateBpsBN = new BigNumber(annualRateBps.toString());
+
+  const dailyRate = rateBpsBN.dividedBy(10000).dividedBy(365);
+  const interest = principalBN.multipliedBy(dailyRate).multipliedBy(days);
+
+  return interest.toFixed(0);
 };
 
 export async function handleEthErr(err: object & { message: string }) {
