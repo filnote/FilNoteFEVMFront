@@ -716,12 +716,12 @@ video {
   text-align: center;
 }
 
-.font-serif {
-  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-}
-
 .font-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.font-serif {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
 .text-2xl {
@@ -958,6 +958,22 @@ html {
       .bg-PENDING {
         --tw-text-opacity: 1 !important;
         color: rgb(59 130 246 / var(--tw-text-opacity, 1)) !important;
+      }
+    }
+  }
+  &.ACTIVE {
+    .avatar {
+      --tw-bg-opacity: 1 !important;
+      background-color: rgb(34 197 94 / var(--tw-bg-opacity, 1)) !important;
+    }
+    .avatar {
+      .bg-ACTIVE {
+        --tw-bg-opacity: 1 !important;
+        background-color: rgb(240 253 244 / var(--tw-bg-opacity, 1)) !important;
+      }
+      .bg-ACTIVE {
+        --tw-text-opacity: 1 !important;
+        color: rgb(34 197 94 / var(--tw-text-opacity, 1)) !important;
       }
     }
   }

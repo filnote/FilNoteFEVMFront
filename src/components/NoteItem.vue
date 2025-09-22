@@ -53,16 +53,26 @@
                 {{ handleAddress(item.investor) }}
               </q-item-section>
             </q-item>
+            <!-- protocolContract -->
+            <q-item>
+              <q-item-section side>
+                Protocol Contract
+              </q-item-section>
+              <q-item-section>
+                {{ handleAddress(item.protocolContract) }}
+              </q-item-section>
+            </q-item>
             <WriteContract :show-box-loading="false" :alert-error="true">
               <template #body="{ props }">
                 <q-item>
                   <q-item-section>
                     <div class="flex items-center space-x-3">
-                      <q-btn :loading="props.loading" outline v-if="showCloseButton(item.creator, item.status)"
-                        label="Close Note" color="negative" unelevated @click="closeNote(props.write, item.id)"
-                        type="button" size="md" />
+                      <q-btn :loading="props.loading && action === 'close'" outline
+                        v-if="showCloseButton(item.creator, item.status)" label="Close Note" color="negative" unelevated
+                        @click="closeNote(props.write, item.id)" type="button" size="md" />
                       <q-btn label="Subscription" color="secondary" unelevated size="md"
-                        v-if="showSubscriptionButton(item.creator, item.status)" />
+                        :loading="props.loading && action === 'invest'"
+                        v-if="showSubscriptionButton(item.creator, item.status)" @click="investNote(props.write)" />
                       <q-btn label="Review" color="primary" unelevated size="md" v-if="showReviewButton(item.status)"
                         @click="openReviewNote" />
                     </div>
@@ -98,6 +108,7 @@ const props = defineProps({
 
 const dAppStore = ref(useDAppStore());
 const reviewNoteRef = ref<InstanceType<typeof ReviewNote>>();
+const action = ref('close');
 
 function openReviewNote() {
   console.log(reviewNoteRef)
@@ -125,9 +136,19 @@ function showReviewButton(status: number) {
 }
 
 function closeNote(write: (args: WriteArgs) => Promise<WriteContractResult | undefined>, id: bigint) {
+  action.value = 'close';
   void write({
     functionName: 'closeNote',
     args: [id],
+  });
+}
+
+function investNote(write: (args: WriteArgs) => Promise<WriteContractResult | undefined>) {
+  action.value = 'invest';
+  void write({
+    functionName: 'invest',
+    args: [props.item.id],
+    value: props.item.targetAmount,
   });
 }
 </script>

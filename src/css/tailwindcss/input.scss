@@ -62,6 +62,14 @@ html {
       }
     }
   }
+  &.ACTIVE {
+    .avatar {
+      @apply bg-green-500 !important;
+      .bg-ACTIVE {
+        @apply bg-green-50 text-green-500 !important;
+      }
+    }
+  }
 }
 
 div:where(.swal2-container) {

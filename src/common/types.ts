@@ -7,6 +7,7 @@ export interface Note {
   status: number;
   contractHash: string;
   investor: string;
+  protocolContract: string;
 }
 export type ReadArgs = {
   functionName: string;
