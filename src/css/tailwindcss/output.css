@@ -586,6 +586,10 @@ video {
   position: relative;
 }
 
+.z-50 {
+  z-index: 50;
+}
+
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -595,8 +599,16 @@ video {
   margin-top: 2.5rem !important;
 }
 
+.ml-5 {
+  margin-left: 1.25rem;
+}
+
 .mt-5 {
   margin-top: 1.25rem;
+}
+
+.-mt-20 {
+  margin-top: -5rem;
 }
 
 .flex {
@@ -805,6 +817,12 @@ html {
   color: rgb(113 113 122 / var(--tw-text-opacity, 1));
 }
 
+.text-link {
+  --tw-text-opacity: 1;
+  color: rgb(59 130 246 / var(--tw-text-opacity, 1));
+  text-decoration-line: underline;
+}
+
 .q-list--separator > .q-item-type + .q-item-type,
 .q-field--outlined .q-field__control:before {
   border-color: rgb(179 179 179 / 12%);
@@ -992,4 +1010,35 @@ div:where(.swal2-container) div:where(.swal2-html-container) {
 div:where(.swal2-icon).swal2-question {
   border-color: var(--q-warning);
   color: var(--q-warning);
+}
+
+.main-menu {
+  display: flex;
+  align-items: center;
+}
+
+.main-menu > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(1rem * var(--tw-space-x-reverse));
+  margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.main-menu {
+  .q-item {
+    border-radius: 0.5rem;
+  }
+  .q-item {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  .q-item {
+    &.q-router-link--active {
+      --tw-bg-opacity: 1;
+      background-color: rgb(39 39 42 / var(--tw-bg-opacity, 1));
+    }
+    &.q-router-link--active {
+      --tw-text-opacity: 1;
+      color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+    }
+  }
 }

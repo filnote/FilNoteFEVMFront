@@ -17,11 +17,11 @@
         </div>
         <div class="info">
           <q-list separator dense>
-            <q-item>
+            <q-item clickable @click="openViewAddress(item.creator)">
               <q-item-section side>
                 Creator
               </q-item-section>
-              <q-item-section>
+              <q-item-section class="text-link">
                 {{ handleAddress(item.creator) }}
               </q-item-section>
             </q-item>
@@ -45,20 +45,20 @@
               </q-item-section>
             </q-item>
             <!-- investor -->
-            <q-item>
+            <q-item clickable @click="openViewAddress(item.investor)">
               <q-item-section side>
                 Investor
               </q-item-section>
-              <q-item-section>
+              <q-item-section class="text-link">
                 {{ handleAddress(item.investor) }}
               </q-item-section>
             </q-item>
             <!-- protocolContract -->
-            <q-item>
+            <q-item clickable @click="openViewAddress(item.protocolContract)">
               <q-item-section side>
                 Protocol Contract
               </q-item-section>
-              <q-item-section>
+              <q-item-section class="text-link">
                 {{ handleAddress(item.protocolContract) }}
               </q-item-section>
             </q-item>
@@ -90,8 +90,8 @@
 <script setup lang="ts">
 import type { WriteArgs, WriteContractResult, Note } from 'src/common/types';
 import { ref, type PropType } from 'vue';
-import { NoteStatus, type NoteStatusKey } from 'src/common/const';
-import { handleAddress, weiToEther, bpsToPercentage, calculateInterest } from 'src/common/tools';
+import { Network, NoteStatus, type NoteStatusKey } from 'src/common/const';
+import { handleAddress, weiToEther, bpsToPercentage, calculateInterest, emptyString } from 'src/common/tools';
 import { useDAppStore } from 'src/stores/d-app';
 import WriteContract from 'components/WriteContract.vue';
 import ReviewNote from 'components/ReviewNote.vue';
@@ -150,5 +150,10 @@ function investNote(write: (args: WriteArgs) => Promise<WriteContractResult | un
     args: [props.item.id],
     value: props.item.targetAmount,
   });
+}
+
+function openViewAddress(address: string) {
+  if (emptyString(address)) return;
+  window.open(`${Network.blockExplorers.default.url}/address/${address}`, '_blank');
 }
 </script>

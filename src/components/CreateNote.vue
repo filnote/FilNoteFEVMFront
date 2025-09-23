@@ -4,7 +4,7 @@
       <q-btn @click="openCreateNote" unelevated size="lg" rounded color="secondary" icon="note_add"
         label="Create Note" />
       <q-dialog v-model="open" persistent>
-        <WriteContract :user-submit="closeCreateNote">
+        <WriteContract :on-success="createNoteSuccess">
           <template #body="{ props }">
             <q-card-section class="bg-primary text-center">
               <h3 class="text-white text-2xl font-bold">Create Note</h3>
@@ -47,6 +47,12 @@ import { filToWei } from 'src/common/tools';
 import type { WriteArgs, WriteContractResult } from 'src/common/types';
 import { ref } from 'vue';
 const open = ref(false);
+const props = defineProps({
+  refreshData: {
+    type: Function,
+    default: () => { },
+  },
+});
 const form = ref({
   targetAmount: 0,
   interestRateBps: 20,
@@ -58,6 +64,12 @@ function openCreateNote() {
 function closeCreateNote() {
   open.value = false;
 }
+
+function createNoteSuccess() {
+  props.refreshData?.();
+  closeCreateNote();
+}
+
 function createNote(writeContract: (args: WriteArgs) => Promise<WriteContractResult | undefined>) {
   const targetAmount = filToWei(form.value.targetAmount);
   void writeContract({

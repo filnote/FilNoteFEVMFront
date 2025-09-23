@@ -19,7 +19,7 @@
 import { useDAppStore } from 'src/stores/d-app';
 import { ref, watch } from 'vue';
 import { emptyString } from 'src/common/tools';
-import { useAppKit, useAppKitAccount } from '@reown/appkit/vue';
+import { useAppKit, useAppKitAccount, useAppKitState } from '@reown/appkit/vue';
 import { contractRead } from 'src/common/dApp';
 
 defineProps({
@@ -31,11 +31,19 @@ defineProps({
 
 const dAppStore = ref(useDAppStore());
 const accountData = ref(useAppKitAccount())
+const appKitState = ref(useAppKitState());
 const { open } = useAppKit();
 const loading = ref(false);
 
+watch(appKitState, (newVal) => {
+  loading.value = newVal.open;
+}, { deep: true });
+
 watch(accountData, (newVal) => {
-  if (!newVal.isConnected) return;
+  if (!newVal.isConnected) {
+    dAppStore.value.clearDappAccount();
+    return;
+  };
   dAppStore.value.setAddress(`${newVal.address}`);
   void getOwnerAddress();
 }, { deep: true });
@@ -44,7 +52,6 @@ watch(accountData, (newVal) => {
 
 async function getOwnerAddress() {
   const result = await contractRead({ functionName: 'owner', args: [] }) as string;
-  console.log('ownerAddress', result);
   dAppStore.value.setOwnerAddress(`${result}`);
 }
 

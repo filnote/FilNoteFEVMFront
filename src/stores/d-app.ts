@@ -9,6 +9,10 @@ export const useDAppStore = defineStore('d-app', {
   }),
 
   actions: {
+    clearDappAccount() {
+      this.address = '';
+      this.addressShort = '';
+    },
     setAddress(address: string) {
       this.address = address;
       this.addressShort = handleAddress(address);

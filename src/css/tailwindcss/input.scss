@@ -14,6 +14,9 @@ html {
 .text-meta {
   @apply text-zinc-500;
 }
+.text-link {
+  @apply text-blue-500 underline;
+}
 
 .q-list--separator > .q-item-type + .q-item-type,
 .q-field--outlined .q-field__control:before {
@@ -83,4 +86,14 @@ div:where(.swal2-container) div:where(.swal2-html-container) {
 div:where(.swal2-icon).swal2-question {
   border-color: var(--q-warning);
   color: var(--q-warning);
+}
+
+.main-menu {
+  @apply flex items-center space-x-4;
+  .q-item {
+    @apply rounded-lg text-base;
+    &.q-router-link--active {
+      @apply bg-zinc-800 text-white;
+    }
+  }
 }
