@@ -19,7 +19,9 @@ html {
 }
 
 .q-list--separator > .q-item-type + .q-item-type,
-.q-field--outlined .q-field__control:before {
+.q-field--outlined .q-field__control:before,
+.q-table th,
+.q-table td {
   border-color: rgb(179 179 179 / 12%);
 }
 
@@ -95,5 +97,20 @@ div:where(.swal2-icon).swal2-question {
     &.q-router-link--active {
       @apply bg-zinc-800 text-white;
     }
+  }
+}
+
+.q-table {
+  thead {
+    @apply bg-zinc-50;
+  }
+  .bg-CLOSED {
+    @apply bg-orange-50 text-orange-500;
+  }
+  .bg-INIT {
+    @apply bg-blue-50 text-blue-500;
+  }
+  .bg-ACTIVE {
+    @apply bg-green-50 text-green-500;
   }
 }

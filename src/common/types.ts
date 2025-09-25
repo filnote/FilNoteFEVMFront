@@ -14,7 +14,7 @@ export type ReadArgs = {
   args: ContractArg[];
 };
 
-export type ContractArg = string | number | bigint | boolean;
+export type ContractArg = string | number | bigint | boolean | bigint[];
 
 export interface WriteArgs {
   functionName: string;

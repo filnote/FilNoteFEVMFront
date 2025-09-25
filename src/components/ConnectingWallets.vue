@@ -1,7 +1,21 @@
 <template>
   <template v-if="emptyString(dAppStore.address)">
-    <q-btn :loading="loading" color="white" text-color="black" icon="wallet" label="Connect Wallet"
-      @click="openConnectWallet" />
+    <template v-if="mode === 'default'">
+      <q-btn :loading="loading" color="white" text-color="black" icon="wallet" label="Connect Wallet"
+        @click="openConnectWallet" />
+    </template>
+    <template v-else-if="mode === 'card'">
+      <q-card flat class="mx-auto lg:w-[400px]">
+        <q-card-section class="text-center">
+          <q-icon name="wallet" size="4em" />
+          <p>You need to connect your wallet to continue</p>
+        </q-card-section>
+        <q-card-section class="text-center">
+          <q-btn :loading="loading" color="secondary" unelevated icon="wallet" label="Connect Wallet"
+            @click="openConnectWallet" />
+        </q-card-section>
+      </q-card>
+    </template>
   </template>
   <template v-else>
     <template v-if="showType === 'button'">
@@ -27,6 +41,10 @@ defineProps({
     type: String,
     default: 'button',
   },
+  mode: {
+    type: String,
+    default: 'default',
+  }
 });
 
 const dAppStore = ref(useDAppStore());
