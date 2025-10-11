@@ -1,8 +1,24 @@
 <template>
   <q-card flat class="note-item" :class="NoteStatus[item.status as NoteStatusKey]">
-    <q-card-section>
-      <div class="text-lg font-bold font-mono">
-        #{{ item.id }}
+    <q-card-section class="space-y-2">
+      <div class="flex justify-between items-center">
+        <div class="text-lg font-bold font-mono">
+          #{{ item.id }}
+        </div>
+        <WriteContract :show-box-loading="false" :alert-error="true" :no-card="true">
+          <template #body="{ props }">
+            <div class="flex items-center space-x-3">
+              <q-btn :loading="props.loading && action === 'close'" outline
+                v-if="showCloseButton(item.creator, item.status)" label="Close Note" color="negative" unelevated
+                @click="closeNote(props.write, item.id)" type="button" size="md" />
+              <q-btn label="Subscription" color="secondary" unelevated size="md"
+                :loading="props.loading && action === 'invest'" v-if="showSubscriptionButton(item.creator, item.status)"
+                @click="investNote(props.write)" />
+              <q-btn label="Review" color="primary" unelevated size="md" v-if="showReviewButton(item.status)"
+                @click="openReviewNote" />
+            </div>
+          </template>
+        </WriteContract>
       </div>
       <div class="text-sm text-meta">
         Borrow for <span class="text-secondary font-bold">{{ item.borrowingDays }} days</span> at <span
@@ -62,24 +78,7 @@
                 {{ handleAddress(item.protocolContract) }}
               </q-item-section>
             </q-item>
-            <WriteContract :show-box-loading="false" :alert-error="true">
-              <template #body="{ props }">
-                <q-item>
-                  <q-item-section>
-                    <div class="flex items-center space-x-3">
-                      <q-btn :loading="props.loading && action === 'close'" outline
-                        v-if="showCloseButton(item.creator, item.status)" label="Close Note" color="negative" unelevated
-                        @click="closeNote(props.write, item.id)" type="button" size="md" />
-                      <q-btn label="Subscription" color="secondary" unelevated size="md"
-                        :loading="props.loading && action === 'invest'"
-                        v-if="showSubscriptionButton(item.creator, item.status)" @click="investNote(props.write)" />
-                      <q-btn label="Review" color="primary" unelevated size="md" v-if="showReviewButton(item.status)"
-                        @click="openReviewNote" />
-                    </div>
-                  </q-item-section>
-                </q-item>
-              </template>
-            </WriteContract>
+
           </q-list>
         </div>
       </div>
@@ -129,9 +128,7 @@ function showSubscriptionButton(address: string, status: number) {
 function showReviewButton(status: number) {
   const statusKey = NoteStatus[status as NoteStatusKey];
   const currentAddress = dAppStore.value.address;
-  console.log('currentAddress', currentAddress);
-  console.log('dAppStore.value.ownerAddress', dAppStore.value.ownerAddress);
-  console.log('statusKey', statusKey);
+
   return currentAddress === dAppStore.value.ownerAddress && statusKey == 'INIT';
 }
 

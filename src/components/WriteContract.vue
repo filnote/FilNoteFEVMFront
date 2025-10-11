@@ -1,5 +1,5 @@
 <template>
-  <q-card flat class="relative w-[380px]">
+  <q-card v-if="!noCard" flat class="relative w-[380px]">
     <slot name="body" :props="{ write: writeContract, loading }"></slot>
     <q-banner v-if="transactionError" class="bg-red-100 text-red-500 break-words break-all leading-loose text-xs">
       {{ transactionError }}
@@ -8,6 +8,9 @@
       <q-spinner-radio size="1rem" color="primary" />
     </q-inner-loading>
   </q-card>
+  <div v-else>
+    <slot name="body" :props="{ write: writeContract, loading }"></slot>
+  </div>
 
 
   <q-dialog persistent v-model="isConfirming">
@@ -63,6 +66,10 @@ const props = defineProps({
     default: true,
   },
   alertError: {
+    type: Boolean,
+    default: false,
+  },
+  noCard: {
     type: Boolean,
     default: false,
   },

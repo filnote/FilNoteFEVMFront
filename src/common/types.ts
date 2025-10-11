@@ -8,6 +8,7 @@ export interface Note {
   contractHash: string;
   investor: string;
   protocolContract: string;
+  nodeOutputBalance: bigint;
 }
 export type ReadArgs = {
   functionName: string;
