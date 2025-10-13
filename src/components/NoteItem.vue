@@ -90,7 +90,7 @@
 import type { WriteArgs, WriteContractResult, Note } from 'src/common/types';
 import { ref, type PropType } from 'vue';
 import { NoteStatus, type NoteStatusKey } from 'src/common/const';
-import { openViewAddress } from 'src/common/tools';
+import { emptyString, openViewAddress } from 'src/common/tools';
 import { handleAddress, weiToEther, bpsToPercentage, calculateInterest } from 'src/common/tools';
 import { useDAppStore } from 'src/stores/d-app';
 import WriteContract from 'components/WriteContract.vue';
@@ -115,13 +115,15 @@ const reviewNoteRef = ref<InstanceType<typeof ReviewNote>>();
 const action = ref('close');
 
 function openReviewNote() {
-  console.log(reviewNoteRef)
   reviewNoteRef.value?.showReviewNote(props.item.id);
 }
 
 function showCloseButton() {
   const statusKey = NoteStatus[props.item.status as NoteStatusKey];
   const currentAddress = dAppStore.value.address;
+  if (emptyString(currentAddress)) {
+    return false;
+  }
   return (props.item.creator === currentAddress || currentAddress === dAppStore.value.ownerAddress) && statusKey === 'INIT';
 }
 
@@ -133,6 +135,9 @@ function showSubscriptionButton() {
 function showReviewButton() {
   const statusKey = NoteStatus[props.item.status as NoteStatusKey];
   const currentAddress = dAppStore.value.address;
+  if (emptyString(currentAddress)) {
+    return false;
+  }
 
   return currentAddress === dAppStore.value.ownerAddress && statusKey === 'INIT';
 }
@@ -140,6 +145,9 @@ function showReviewButton() {
 function showAgreementDetailsBtn() {
   const statusKey = NoteStatus[props.item.status as NoteStatusKey];
   const currentAddress = dAppStore.value.address;
+  if (emptyString(currentAddress)) {
+    return false;
+  }
   return statusKey === 'ACTIVE' && (props.item.creator === currentAddress || currentAddress === dAppStore.value.ownerAddress || props.item.investor === currentAddress);
 }
 

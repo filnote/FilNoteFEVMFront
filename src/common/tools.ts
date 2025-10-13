@@ -138,3 +138,12 @@ export const openViewAddress = function (address: string | undefined) {
   if (emptyString(address)) return;
   window.open(`${Network.blockExplorers.default.url}/address/${address}`, '_blank');
 };
+
+export const justExpiryTime = function (expiryTime: number) {
+  const now = new Date();
+  const diff = Number(expiryTime) * 1000 - now.getTime();
+  if (diff <= 0) {
+    return false;
+  }
+  return true;
+};

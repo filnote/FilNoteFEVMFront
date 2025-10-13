@@ -117,3 +117,10 @@ div:where(.swal2-icon).swal2-question {
     @apply bg-green-50 text-green-500;
   }
 }
+
+ul.note-countdown {
+  @apply flex items-center justify-center space-x-2 font-mono text-2xl font-bold;
+  .label {
+    @apply font-serif text-lg;
+  }
+}

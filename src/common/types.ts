@@ -11,6 +11,7 @@ export interface Note {
   nodeOutputBalance: bigint;
   platformFeeRateBps: number;
   platformFeeAmount: bigint;
+  expiryTime: number;
 }
 export type ReadArgs = {
   functionName: string;
