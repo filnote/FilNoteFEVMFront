@@ -8,14 +8,15 @@
         <WriteContract :show-box-loading="false" :alert-error="true" :no-card="true">
           <template #body="{ props }">
             <div class="flex items-center space-x-3">
-              <q-btn :loading="props.loading && action === 'close'" outline
-                v-if="showCloseButton(item.creator, item.status)" label="Close Note" color="negative" unelevated
-                @click="closeNote(props.write, item.id)" type="button" size="md" />
+              <q-btn :loading="props.loading && action === 'close'" outline v-if="showCloseButton()" label="Close Note"
+                color="negative" unelevated @click="closeNote(props.write, item.id)" type="button" size="md" />
               <q-btn label="Subscription" color="secondary" unelevated size="md"
-                :loading="props.loading && action === 'invest'" v-if="showSubscriptionButton(item.creator, item.status)"
+                :loading="props.loading && action === 'invest'" v-if="showSubscriptionButton()"
                 @click="investNote(props.write)" />
-              <q-btn label="Review" color="primary" unelevated size="md" v-if="showReviewButton(item.status)"
+              <q-btn label="Review" color="primary" unelevated size="md" v-if="showReviewButton()"
                 @click="openReviewNote" />
+              <q-btn v-if="showAgreementDetailsBtn()" label="Agreement details" color="green" unelevated
+                @click="showAgreementDetails(item)" />
             </div>
           </template>
         </WriteContract>
@@ -78,7 +79,6 @@
                 {{ handleAddress(item.protocolContract) }}
               </q-item-section>
             </q-item>
-
           </q-list>
         </div>
       </div>
@@ -89,8 +89,9 @@
 <script setup lang="ts">
 import type { WriteArgs, WriteContractResult, Note } from 'src/common/types';
 import { ref, type PropType } from 'vue';
-import { Network, NoteStatus, type NoteStatusKey } from 'src/common/const';
-import { handleAddress, weiToEther, bpsToPercentage, calculateInterest, emptyString } from 'src/common/tools';
+import { NoteStatus, type NoteStatusKey } from 'src/common/const';
+import { openViewAddress } from 'src/common/tools';
+import { handleAddress, weiToEther, bpsToPercentage, calculateInterest } from 'src/common/tools';
 import { useDAppStore } from 'src/stores/d-app';
 import WriteContract from 'components/WriteContract.vue';
 import ReviewNote from 'components/ReviewNote.vue';
@@ -100,6 +101,10 @@ const props = defineProps({
     required: true,
   },
   refreshData: {
+    type: Function,
+    default: () => { },
+  },
+  showAgreementDetails: {
     type: Function,
     default: () => { },
   },
@@ -114,22 +119,28 @@ function openReviewNote() {
   reviewNoteRef.value?.showReviewNote(props.item.id);
 }
 
-function showCloseButton(address: string, status: number) {
-  const statusKey = NoteStatus[status as NoteStatusKey];
+function showCloseButton() {
+  const statusKey = NoteStatus[props.item.status as NoteStatusKey];
   const currentAddress = dAppStore.value.address;
-  return (address === currentAddress || currentAddress === dAppStore.value.ownerAddress) && statusKey === 'INIT';
+  return (props.item.creator === currentAddress || currentAddress === dAppStore.value.ownerAddress) && statusKey === 'INIT';
 }
 
-function showSubscriptionButton(address: string, status: number) {
-  const statusKey = NoteStatus[status as NoteStatusKey];
+function showSubscriptionButton() {
+  const statusKey = NoteStatus[props.item.status as NoteStatusKey];
   return statusKey === 'PENDING';
 }
 
-function showReviewButton(status: number) {
-  const statusKey = NoteStatus[status as NoteStatusKey];
+function showReviewButton() {
+  const statusKey = NoteStatus[props.item.status as NoteStatusKey];
   const currentAddress = dAppStore.value.address;
 
-  return currentAddress === dAppStore.value.ownerAddress && statusKey == 'INIT';
+  return currentAddress === dAppStore.value.ownerAddress && statusKey === 'INIT';
+}
+
+function showAgreementDetailsBtn() {
+  const statusKey = NoteStatus[props.item.status as NoteStatusKey];
+  const currentAddress = dAppStore.value.address;
+  return statusKey === 'ACTIVE' && (props.item.creator === currentAddress || currentAddress === dAppStore.value.ownerAddress || props.item.investor === currentAddress);
 }
 
 function closeNote(write: (args: WriteArgs) => Promise<WriteContractResult | undefined>, id: bigint) {
@@ -147,10 +158,5 @@ function investNote(write: (args: WriteArgs) => Promise<WriteContractResult | un
     args: [props.item.id],
     value: props.item.targetAmount,
   });
-}
-
-function openViewAddress(address: string) {
-  if (emptyString(address)) return;
-  window.open(`${Network.blockExplorers.default.url}/address/${address}`, '_blank');
 }
 </script>

@@ -39,6 +39,9 @@ html {
 .bg-video .title-box {
   @apply h-[450px] z-20 relative container flex flex-col  justify-center;
 }
+.q-dialog .bg-video .title-box {
+  @apply h-[120px];
+}
 
 .note-item {
   @apply rounded-lg overflow-hidden;

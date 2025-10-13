@@ -9,6 +9,8 @@ export interface Note {
   investor: string;
   protocolContract: string;
   nodeOutputBalance: bigint;
+  platformFeeRateBps: number;
+  platformFeeAmount: bigint;
 }
 export type ReadArgs = {
   functionName: string;
@@ -19,6 +21,8 @@ export type ContractArg = string | number | bigint | boolean | bigint[];
 
 export interface WriteArgs {
   functionName: string;
+  contractType?: string;
+  contractAddress?: string;
   args: ContractArg[];
   value?: bigint;
   gasLimit?: bigint;

@@ -40,9 +40,11 @@
 </template>
 <script setup lang="ts">
 import { useAppKitProvider } from '@reown/appkit/vue';
+import type { InterfaceAbi } from 'ethers';
 import { BrowserProvider, Contract, type Eip1193Provider } from 'ethers';
 import { Network } from 'src/common/const';
 import { FilNoteABI, FilNoteAddress } from 'src/common/FilNoteABI';
+import { ProtocolsABI } from 'src/common/ProtocolsABI';
 import { handleAddress, handleEthErr, swalAlert } from 'src/common/tools';
 import type { WriteContractResult, WriteArgs } from 'src/common/types';
 import { ref } from 'vue';
@@ -105,8 +107,13 @@ async function writeContract(args: WriteArgs) {
     const { walletProvider } = useAppKitProvider('eip155');
     const etherProvider = new BrowserProvider(walletProvider as Eip1193Provider);
     const signer = await etherProvider.getSigner();
-    const contract = new Contract(FilNoteAddress, FilNoteABI, signer);
-
+    let contractAddress = FilNoteAddress;
+    let contractABI: InterfaceAbi = FilNoteABI;
+    if (args.contractType === 'PROTOCOL') {
+      contractAddress = args.contractAddress as string;
+      contractABI = ProtocolsABI;
+    }
+    const contract = new Contract(contractAddress, contractABI, signer);
     const contractMethod = contract[args.functionName];
     if (typeof contractMethod !== 'function') {
       throw new Error(`Function ${args.functionName} not found on contract`);

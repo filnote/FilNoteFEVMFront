@@ -827,4 +827,4 @@ export const FilNoteABI = [
     inputs: [],
   },
 ];
-export const FilNoteAddress = '0xE2a305eb28738A9d38D10A8550A2875996a77a53';
+export const FilNoteAddress = '0xC377AF7CE09A9B874FC5e3a7998d531109d54D34';

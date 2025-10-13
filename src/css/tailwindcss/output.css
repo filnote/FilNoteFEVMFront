@@ -586,10 +586,6 @@ video {
   position: relative;
 }
 
-.z-50 {
-  z-index: 50;
-}
-
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -597,10 +593,6 @@ video {
 
 .\!mt-10 {
   margin-top: 2.5rem !important;
-}
-
-.-mt-20 {
-  margin-top: -5rem;
 }
 
 .ml-5 {
@@ -803,6 +795,10 @@ video {
   outline-style: solid;
 }
 
+.filter {
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
 :root {
   --swal2-width: 24em !important;
 }
@@ -884,6 +880,10 @@ html {
   height: 450px;
   flex-direction: column;
   justify-content: center;
+}
+
+.q-dialog .bg-video .title-box {
+  height: 120px;
 }
 
 .note-item {

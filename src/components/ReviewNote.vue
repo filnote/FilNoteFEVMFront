@@ -1,6 +1,6 @@
 <template>
   <q-dialog v-model="visible">
-    <WriteContract :on-success="refreshData" :user-submit="hideReviewNote">
+    <WriteContract :on-success="refreshData">
       <template #body="{ props }">
         <q-card-section class="bg-primary text-center">
           <h3 class="text-white text-2xl font-bold">Review Note</h3>

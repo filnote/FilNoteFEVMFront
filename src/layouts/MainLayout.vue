@@ -12,13 +12,6 @@
                 </q-item-label>
               </q-item-section>
             </q-item>
-            <q-item clickable :to="{ name: 'dashboard' }">
-              <q-item-section>
-                <q-item-label>
-                  Dashboard
-                </q-item-label>
-              </q-item-section>
-            </q-item>
           </q-list>
         </q-toolbar-title>
         <ConnectingWallets />

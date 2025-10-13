@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import ConnectingWallets from 'components/ConnectingWallets.vue';
 import WriteContract from 'components/WriteContract.vue';
-import { filToWei } from 'src/common/tools';
+import { filToWei, swalAlert } from 'src/common/tools';
 import type { WriteArgs, WriteContractResult } from 'src/common/types';
 import { ref } from 'vue';
 const open = ref(false);
@@ -66,6 +66,8 @@ function closeCreateNote() {
 }
 
 function createNoteSuccess() {
+  props.refreshData?.();
+  swalAlert.success('Note created successfully');
   props.refreshData?.();
   closeCreateNote();
 }

@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import { formatEther, parseEther, ZeroAddress } from 'ethers';
 import { ErrorDecoder } from 'ethers-decode-error';
 import Swal from 'sweetalert2';
+import { Network } from './const';
 
 export const emptyString = function (str: unknown) {
   return typeof str === 'undefined' || str == null || str === '';
@@ -11,8 +12,8 @@ export const isZeroAddress = function (address: string) {
   return address === '0x0000000000000000000000000000000000000000000000000000000000000000';
 };
 
-export const handleAddress = function (str: string, before = 6, after = 4) {
-  if (emptyString(str)) {
+export const handleAddress = function (str: string | undefined, before = 6, after = 4) {
+  if (emptyString(str) || str === undefined) {
     return '...';
   }
   if (isZeroAddress(str) || str === ZeroAddress) {
@@ -23,7 +24,11 @@ export const handleAddress = function (str: string, before = 6, after = 4) {
   return newStr;
 };
 
-export const weiToEther = function (wei: bigint | number | string, processingAmount = false) {
+export const weiToEther = function (
+  wei: bigint | number | string | undefined,
+  processingAmount = false,
+) {
+  if (emptyString(wei)) return '...';
   const val = formatEther(wei);
   if (processingAmount) {
     return processingBigAmount(val);
@@ -41,7 +46,8 @@ export const processingBigAmount = function (input: number | string, decimalPlac
   return decimal ? `${integer}.${decimal}` : integer;
 };
 
-export const bpsToPercentage = function (bps: bigint | number | string) {
+export const bpsToPercentage = function (bps: bigint | number | string | undefined) {
+  if (emptyString(bps)) return '...';
   const bpsBigNumber = new BigNumber(bps.toString());
   const percentage = bpsBigNumber.dividedBy(100);
   return percentage.toNumber();
@@ -126,4 +132,9 @@ export const swalAlert = {
       confirmButtonText: `<span class="q-focus-helper" tabindex="-1"></span><span class="q-btn__content text-center col items-center q-anchor--skip justify-center row">I know</span>`,
     });
   },
+};
+
+export const openViewAddress = function (address: string | undefined) {
+  if (emptyString(address)) return;
+  window.open(`${Network.blockExplorers.default.url}/address/${address}`, '_blank');
 };
