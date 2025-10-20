@@ -10,7 +10,7 @@
             <div class="flex items-center space-x-3">
               <q-btn :loading="props.loading && action === 'close'" outline v-if="showCloseButton()" label="Close Note"
                 color="negative" unelevated @click="closeNote(props.write, item.id)" type="button" size="md" />
-              <q-btn label="Subscription" color="secondary" unelevated size="md"
+              <q-btn label="Invest Note" color="secondary" unelevated size="md"
                 :loading="props.loading && action === 'invest'" v-if="showSubscriptionButton()"
                 @click="investNote(props.write)" />
               <q-btn label="Review" color="primary" unelevated size="md" v-if="showReviewButton()"
@@ -85,6 +85,7 @@
     </q-card-section>
   </q-card>
   <ReviewNote :refresh-data="refreshData" ref="reviewNoteRef" />
+  <InvestmentRecognition :refresh-data="refreshData" ref="investmentRecognitionRef" />
 </template>
 <script setup lang="ts">
 import type { WriteArgs, WriteContractResult, Note } from 'src/common/types';
@@ -95,6 +96,7 @@ import { handleAddress, weiToEther, bpsToPercentage, calculateInterest } from 's
 import { useDAppStore } from 'src/stores/d-app';
 import WriteContract from 'components/WriteContract.vue';
 import ReviewNote from 'components/ReviewNote.vue';
+import InvestmentRecognition from 'components/InvestmentRecognition.vue';
 const props = defineProps({
   item: {
     type: Object as PropType<Note>,
@@ -113,6 +115,7 @@ const props = defineProps({
 const dAppStore = ref(useDAppStore());
 const reviewNoteRef = ref<InstanceType<typeof ReviewNote>>();
 const action = ref('close');
+const investmentRecognitionRef = ref<InstanceType<typeof InvestmentRecognition>>();
 
 function openReviewNote() {
   reviewNoteRef.value?.showReviewNote(props.item.id);
@@ -160,11 +163,14 @@ function closeNote(write: (args: WriteArgs) => Promise<WriteContractResult | und
 }
 
 function investNote(write: (args: WriteArgs) => Promise<WriteContractResult | undefined>) {
-  action.value = 'invest';
-  void write({
-    functionName: 'invest',
-    args: [props.item.id],
-    value: props.item.targetAmount,
+  investmentRecognitionRef.value?.showInvestmentRecognition(props.item, () => {
+    action.value = 'invest';
+    void write({
+      functionName: 'invest',
+      args: [props.item.id],
+      value: props.item.targetAmount,
+    });
   });
+
 }
 </script>

@@ -4,11 +4,12 @@
 
 :root {
   --swal2-width: 24em !important;
+  --page-color: #f8f8f8;
 }
 
 body,
 html {
-  background-color: #f8f8f8;
+  background-color: var(--page-color);
 }
 
 .text-meta {
@@ -122,5 +123,27 @@ ul.note-countdown {
   @apply flex items-center justify-center space-x-2 font-mono text-2xl font-bold;
   .label {
     @apply font-serif text-lg;
+  }
+}
+
+.site-footer {
+  @apply bg-primary p-10;
+}
+.platform-terms-of-service {
+  @apply leading-loose;
+  h3 {
+    @apply font-bold text-xl my-3;
+  }
+}
+
+.risk-disclosure-statement {
+  background-color: var(--page-color);
+  @apply text-sm leading-loose space-y-2 p-4;
+  h2 {
+    @apply text-xl font-bold mb-3;
+  }
+  h3 {
+    @apply text-lg font-bold;
+    @apply my-4 !important;
   }
 }

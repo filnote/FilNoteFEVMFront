@@ -20,6 +20,14 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+    <q-footer class="site-footer">
+      <div class="container">
+        <div class="links flex items-center space-x-3">
+          <q-btn icon="fa-brands fa-github" href="https://github.com/filnote" target="_blank" />
+          <q-btn :to="{ name: 'terms-service' }" no-caps label="Platform Terms of Service" flat dense></q-btn>
+        </div>
+      </div>
+    </q-footer>
   </q-layout>
 </template>
 
