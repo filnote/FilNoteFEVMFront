@@ -166,6 +166,14 @@ export const justExpiryTime = function (expiryTime: number) {
 };
 
 /**
+ * Get note contract file URL
+ * @param ipfs - IPFS hash
+ * @returns URL
+ */
+export const noteContractUrl = function (ipfs: string) {
+  return `https://indigo-electronic-camel-507.mypinata.cloud/ipfs/${ipfs}`;
+};
+/**
  * View note contract file
  * @param ipfs - IPFS hash
  */

@@ -11,20 +11,20 @@
             </q-card-section>
             <q-card-section>
               <q-form class="space-y-3" @submit="createNote(props.write)">
-                <q-input :rules="[val => val > 0 || 'Target Amount must be greater than 0']" outlined
+                <q-input :rules="[(val: number) => val > 0 || 'Target Amount must be greater than 0']" outlined
                   v-model="form.targetAmount" label="Target Amount">
                   <template #append>
                     <q-img src="/filecoin.png" width="20px" height="20px" />
                   </template>
                 </q-input>
                 <q-input
-                  :rules="[val => val > 0 && val < 10000 || 'Interest Rate must be greater than 0 and less than 10000']"
+                  :rules="[(val: number) => val > 0 && val < 10000 || 'Interest Rate must be greater than 0 and less than 10000']"
                   outlined v-model="form.interestRateBps" label="Interest Rate (bps)">
                   <template #append>
                     <q-icon name="percent" />
                   </template>
                 </q-input>
-                <q-input :rules="[val => val > 0 || 'Borrowing Days must be greater than 0']" outlined
+                <q-input :rules="[(val: number) => val > 0 || 'Borrowing Days must be greater than 0']" outlined
                   v-model="form.borrowingDays" label="Borrowing Days" />
                 <div class="flex justify-center !mt-10 space-x-3">
                   <q-btn class="flex-1" icon="note_add" color="primary" unelevated size="lg" type="submit"
