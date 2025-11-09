@@ -64,6 +64,7 @@ watch(accountData, (newVal) => {
   };
   dAppStore.value.setAddress(`${newVal.address}`);
   void getOwnerAddress();
+  void dAppStore.value.updateBalance();
 }, { deep: true });
 
 
@@ -74,9 +75,8 @@ async function getOwnerAddress() {
     if (result) {
       dAppStore.value.setOwnerAddress(`${result}`);
     }
-  } catch (error) {
+  } catch {
     // Silently fail - owner address is not critical for basic functionality
-    console.warn('Failed to get owner address:', error);
   }
 }
 

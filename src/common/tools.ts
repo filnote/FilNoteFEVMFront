@@ -132,6 +132,23 @@ export const swalAlert = {
       confirmButtonText: `<span class="q-focus-helper" tabindex="-1"></span><span class="q-btn__content text-center col items-center q-anchor--skip justify-center row">I know</span>`,
     });
   },
+  confirm: async (message: string, title = 'Confirm'): Promise<boolean> => {
+    const result = await Swal.fire({
+      title,
+      text: message,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Confirm',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        confirmButton:
+          'q-btn q-btn-item non-selectable no-outline  q-btn--rectangle bg-primary text-white q-btn--unelevated q-btn--actionable q-focusable q-hoverable ',
+        cancelButton:
+          'q-btn q-btn-item non-selectable no-outline  q-btn--rectangle bg-grey text-white q-btn--unelevated q-btn--actionable q-focusable q-hoverable ',
+      },
+    });
+    return result.isConfirmed;
+  },
 };
 
 export const openViewAddress = function (address: string | undefined) {

@@ -10,12 +10,14 @@ export const useDAppStore = defineStore('d-app', {
     addressShort: '',
     ownerAddress: '',
     auditors: [] as string[],
+    balance: BigInt(0),
   }),
 
   actions: {
     clearDappAccount() {
       this.address = '';
       this.addressShort = '';
+      this.balance = BigInt(0);
     },
     setAddress(address: string) {
       this.address = address;
@@ -47,6 +49,24 @@ export const useDAppStore = defineStore('d-app', {
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to sign message';
         throw new Error(errorMessage);
+      }
+    },
+    async updateBalance() {
+      if (!this.address) {
+        this.balance = BigInt(0);
+        return;
+      }
+      try {
+        const { walletProvider } = useAppKitProvider('eip155');
+        if (!walletProvider) {
+          this.balance = BigInt(0);
+          return;
+        }
+        const etherProvider = new BrowserProvider(walletProvider as Eip1193Provider);
+        const balance = await etherProvider.getBalance(this.address);
+        this.balance = balance;
+      } catch {
+        // Silently fail - balance update is not critical
       }
     },
   },

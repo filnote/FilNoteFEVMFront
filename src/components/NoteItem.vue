@@ -92,7 +92,7 @@
 import type { WriteArgs, WriteContractResult, Note } from 'src/common/types';
 import { ref, type PropType } from 'vue';
 import { NoteStatus, type NoteStatusKey } from 'src/common/const';
-import { emptyString, openViewAddress } from 'src/common/tools';
+import { emptyString, openViewAddress, swalAlert, weiToEther as weiToEtherTool } from 'src/common/tools';
 import { handleAddress, weiToEther, bpsToPercentage, calculateInterest } from 'src/common/tools';
 import { useDAppStore } from 'src/stores/d-app';
 import WriteContract from 'components/WriteContract.vue';
@@ -155,7 +155,14 @@ function showAgreementDetailsBtn() {
   return statusKey === 'ACTIVE' && (props.item.creator === currentAddress || currentAddress === dAppStore.value.ownerAddress || props.item.investor === currentAddress);
 }
 
-function closeNote(write: (args: WriteArgs) => Promise<WriteContractResult | undefined>, id: bigint) {
+async function closeNote(write: (args: WriteArgs) => Promise<WriteContractResult | undefined>, id: bigint) {
+  const confirmed = await swalAlert.confirm(
+    'Are you sure you want to close this note? This action cannot be undone.',
+    'Confirm Close Note'
+  );
+  if (!confirmed) {
+    return;
+  }
   action.value = 'close';
   void write({
     functionName: 'closeNote',
@@ -163,7 +170,25 @@ function closeNote(write: (args: WriteArgs) => Promise<WriteContractResult | und
   });
 }
 
-function investNote(write: (args: WriteArgs) => Promise<WriteContractResult | undefined>) {
+async function investNote(write: (args: WriteArgs) => Promise<WriteContractResult | undefined>) {
+  // Check wallet balance before showing investment recognition
+  const address = dAppStore.value.address;
+  if (!address) {
+    swalAlert.error('Please connect your wallet first');
+    return;
+  }
+
+  // Update balance first to ensure we have the latest balance
+  await dAppStore.value.updateBalance();
+
+  const balance = dAppStore.value.balance;
+  if (balance < props.item.targetAmount) {
+    swalAlert.error(
+      `Insufficient balance. You need ${weiToEtherTool(props.item.targetAmount)} FIL but only have ${weiToEtherTool(balance)} FIL.`
+    );
+    return;
+  }
+
   investmentRecognitionRef.value?.showInvestmentRecognition(props.item, () => {
     action.value = 'invest';
     void write({

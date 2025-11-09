@@ -1,5 +1,9 @@
 <template>
-  <ul class="note-countdown">
+  <div v-if="isExpired" class="text-center text-negative">
+    <q-icon name="error" size="md" />
+    <span class="ml-2">Expired</span>
+  </div>
+  <ul v-else-if="isValid" class="note-countdown">
     <li>
       <span>{{ d }}</span>
       <span class="label">.D</span>
@@ -17,10 +21,13 @@
       <span class="label">.S</span>
     </li>
   </ul>
+  <div v-else class="text-center text-grey">
+    <span>Invalid expiry time</span>
+  </div>
 </template>
 <script setup lang="ts">
 import type { Note } from 'src/common/types';
-import { onMounted, onBeforeUnmount, type PropType, ref } from 'vue';
+import { onMounted, onBeforeUnmount, watch, type PropType, ref } from 'vue';
 
 const props = defineProps({
   note: {
@@ -33,6 +40,8 @@ const d = ref(0);
 const h = ref(0);
 const m = ref(0);
 const s = ref(0);
+const isExpired = ref(false);
+const isValid = ref(true);
 
 let countdownTimer: number | undefined;
 
@@ -47,13 +56,31 @@ onBeforeUnmount(() => {
   }
 });
 
+// Watch for note changes to restart countdown
+watch(() => props.note?.expiryTime, () => {
+  startCountdown();
+}, { deep: true });
+
 function startCountdown() {
+  // Check if expiryTime is valid
+  const expiryTime = props.note?.expiryTime;
+  if (!expiryTime || expiryTime === 0 || expiryTime === null || expiryTime === undefined) {
+    isValid.value = false;
+    isExpired.value = false;
+    return;
+  }
+
+  isValid.value = true;
+
   if (countdownTimer !== undefined) {
     clearInterval(countdownTimer);
   }
+
   countdownTimer = window.setInterval(() => {
     const now = new Date();
-    const diff = Number(props.note.expiryTime) * 1000 - now.getTime();
+    const expiryTimestamp = Number(expiryTime) * 1000;
+    const diff = expiryTimestamp - now.getTime();
+
     if (diff <= 0) {
       if (countdownTimer !== undefined) {
         clearInterval(countdownTimer);
@@ -63,8 +90,11 @@ function startCountdown() {
       h.value = 0;
       m.value = 0;
       s.value = 0;
+      isExpired.value = true;
       return;
     }
+
+    isExpired.value = false;
     d.value = Math.floor(diff / (1000 * 60 * 60 * 24));
     h.value = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     m.value = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));

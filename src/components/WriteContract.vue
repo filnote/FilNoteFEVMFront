@@ -13,8 +13,6 @@
     <slot name="body" :props="{ write: writeContract, loading, setLoading: (value: boolean) => loading = value }">
     </slot>
   </div>
-
-
   <q-dialog persistent v-model="isConfirming">
     <q-card class="min-w-[400px]">
       <q-card-section class="text-center space-y-4 bg-primary">
@@ -50,6 +48,7 @@ import { ProtocolsABI } from 'src/common/ProtocolsABI';
 import { handleAddress, handleEthErr, swalAlert } from 'src/common/tools';
 import type { WriteContractResult, WriteArgs } from 'src/common/types';
 import { ref } from 'vue';
+import { useDAppStore } from 'src/stores/d-app';
 
 
 const props = defineProps({
@@ -86,6 +85,7 @@ const isConfirmed = ref(false);
 const result = ref<WriteContractResult>({
   hash: '',
 });
+const dAppStore = useDAppStore();
 
 function openTx() {
   window.open(`${Network.blockExplorers.default.url}/tx/${result.value.hash}`, '_blank');
@@ -140,6 +140,8 @@ async function writeContract(args: WriteArgs) {
       const waitErrorMessage = waitError instanceof Error ? waitError.message : 'Transaction confirmation timeout';
       loading.value = false;
       isConfirming.value = false;
+      // Update balance as transaction was sent
+      void dAppStore.updateBalance();
       if (props.alertError) {
         swalAlert.error(`Transaction sent but confirmation failed: ${waitErrorMessage}`);
       } else {
@@ -168,6 +170,8 @@ async function writeContract(args: WriteArgs) {
 function confirmSuccessful() {
   isConfirmed.value = true;
   loading.value = false;
+  // Update balance after successful transaction
+  void dAppStore.updateBalance();
   props.onSuccess?.();
 }
 

@@ -43,7 +43,8 @@
 <script setup lang="ts">
 import ConnectingWallets from 'components/ConnectingWallets.vue';
 import WriteContract from 'components/WriteContract.vue';
-import { filToWei, swalAlert } from 'src/common/tools';
+import { filToWei, swalAlert, weiToEther } from 'src/common/tools';
+import { useDAppStore } from 'src/stores/d-app';
 import type { WriteArgs, WriteContractResult } from 'src/common/types';
 import { ref } from 'vue';
 const open = ref(false);
@@ -58,6 +59,8 @@ const form = ref({
   interestRateBps: 20,
   borrowingDays: 0,
 });
+const dAppStore = useDAppStore();
+
 function openCreateNote() {
   open.value = true;
 }
@@ -78,7 +81,27 @@ function resetForm() {
   form.value.borrowingDays = 0;
 }
 
-function createNote(writeContract: (args: WriteArgs) => Promise<WriteContractResult | undefined>) {
+async function createNote(writeContract: (args: WriteArgs) => Promise<WriteContractResult | undefined>) {
+  // Check wallet balance (for gas fees)
+  const address = dAppStore.address;
+  if (!address) {
+    swalAlert.error('Please connect your wallet first');
+    return;
+  }
+
+  // Update balance first to ensure we have the latest balance
+  await dAppStore.updateBalance();
+
+  const balance = dAppStore.balance;
+  // Check if balance is sufficient for gas fees (at least 0.01 FIL)
+  const minBalance = filToWei(0.01);
+  if (balance < minBalance) {
+    swalAlert.error(
+      `Insufficient balance for gas fees. You need at least ${weiToEther(minBalance)} FIL but only have ${weiToEther(balance)} FIL.`
+    );
+    return;
+  }
+
   const targetAmount = filToWei(form.value.targetAmount);
   void writeContract({
     functionName: 'createNote',
