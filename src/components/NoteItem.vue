@@ -141,8 +141,8 @@ function showReviewButton() {
   if (emptyString(currentAddress)) {
     return false;
   }
-
-  return currentAddress === dAppStore.value.ownerAddress && statusKey === 'INIT';
+  const isAuditor = dAppStore.value.isAuditor(currentAddress);
+  return isAuditor && statusKey === 'INIT';
 }
 
 function showAgreementDetailsBtn() {

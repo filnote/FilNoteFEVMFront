@@ -33,4 +33,11 @@
 
 <script setup lang="ts">
 import ConnectingWallets from 'components/ConnectingWallets.vue';
+import { useDAppStore } from 'src/stores/d-app';
+import { onMounted } from 'vue';
+
+const dAppStore = useDAppStore();
+onMounted(() => {
+  void dAppStore.getAuditors();
+});
 </script>
