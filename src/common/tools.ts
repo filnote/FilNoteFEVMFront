@@ -164,3 +164,11 @@ export const justExpiryTime = function (expiryTime: number) {
   }
   return true;
 };
+
+/**
+ * View note contract file
+ * @param ipfs - IPFS hash
+ */
+export const viewNoteContract = function (ipfs: string) {
+  window.open(`https://indigo-electronic-camel-507.mypinata.cloud/ipfs/${ipfs}`, '_blank');
+};

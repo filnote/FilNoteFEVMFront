@@ -54,11 +54,11 @@
                 FIL
               </q-item-section>
             </q-item>
-            <q-item>
+            <q-item v-if="!emptyString(item.contractHash)" clickable @click="viewNoteContract(item.contractHash)">
               <q-item-section side>
                 Legal contracts hash
               </q-item-section>
-              <q-item-section>
+              <q-item-section class="text-link">
                 {{ handleAddress(item.contractHash, 6, 4) }}
               </q-item-section>
             </q-item>
@@ -92,7 +92,7 @@
 import type { WriteArgs, WriteContractResult, Note } from 'src/common/types';
 import { ref, type PropType } from 'vue';
 import { NoteStatus, type NoteStatusKey } from 'src/common/const';
-import { emptyString, openViewAddress, swalAlert, weiToEther as weiToEtherTool } from 'src/common/tools';
+import { emptyString, openViewAddress, swalAlert, weiToEther as weiToEtherTool, viewNoteContract } from 'src/common/tools';
 import { handleAddress, weiToEther, bpsToPercentage, calculateInterest } from 'src/common/tools';
 import { useDAppStore } from 'src/stores/d-app';
 import WriteContract from 'components/WriteContract.vue';
