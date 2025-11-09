@@ -28,12 +28,20 @@ export default defineBoot(({ app }) => {
       return data;
     },
     function (error) {
-      const errorMessage = error.response.data.message;
-      if (errorMessage) {
-        swalAlert.error(errorMessage);
-        return Promise.reject(new Error(errorMessage));
+      let errorMessage = 'Network error occurred';
+      if (error.response) {
+        // Server responded with error status
+        errorMessage =
+          error.response.data?.message || `Request failed with status ${error.response.status}`;
+      } else if (error.request) {
+        // Request made but no response received
+        errorMessage = 'No response from server. Please check your network connection.';
+      } else {
+        // Something else happened
+        errorMessage = error.message || 'Unknown error occurred';
       }
-      return Promise.reject(error instanceof Error ? error : new Error(String(error)));
+      swalAlert.error(errorMessage);
+      return Promise.reject(new Error(errorMessage));
     },
   );
   app.config.globalProperties.$axios = axios;

@@ -21,10 +21,14 @@
       </div>
       <ReadContract ref="readContract">
         <template #body>
-          <div class="grid grid-cols-3 gap-5">
+          <div v-if="notes.length > 0" class="grid grid-cols-3 gap-5">
             <template v-for="(item, index) in notes" v-bind:key="index">
               <NoteItem :item="item" :refresh-data="getNotes" :show-agreement-details="showAgreementDetails" />
             </template>
+          </div>
+          <div v-else class="text-center py-10">
+            <q-icon name="inbox" size="4em" color="grey" />
+            <p class="text-grey text-lg mt-4">No notes found</p>
           </div>
         </template>
       </ReadContract>
@@ -74,11 +78,13 @@ const agreementDetails = ref<{ showAgreementDetails: (note: Note) => void }>();
 
 async function getNotes() {
   try {
-    allNotes.value = await readContract.value?.read({ functionName: 'getNotes', args: [0, 10] }) as Note[];
-    console.log(allNotes.value);
-    filterNotes();
-  } catch (error) {
-    console.error(error);
+    const result = await readContract.value?.read({ functionName: 'getNotes', args: [0, 10] });
+    if (result) {
+      allNotes.value = result as Note[];
+      filterNotes();
+    }
+  } catch {
+    // Error is already handled by ReadContract component or axios interceptor
   }
 }
 

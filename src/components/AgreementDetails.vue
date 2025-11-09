@@ -117,7 +117,7 @@
 import { ref } from 'vue';
 import type { Note, WriteArgs, WriteContractResult } from 'src/common/types';
 import WriteContract from 'components/WriteContract.vue';
-import { handleAddress, openViewAddress, weiToEther, bpsToPercentage, justExpiryTime } from 'src/common/tools';
+import { handleAddress, openViewAddress, weiToEther, bpsToPercentage, justExpiryTime, swalAlert } from 'src/common/tools';
 import { useDAppStore } from 'src/stores/d-app';
 import { contractReadProtocols } from 'src/common/dApp';
 import { NoteStatus, type NoteStatusKey } from 'src/common/const';
@@ -145,7 +145,8 @@ async function showAgreementDetails(n: Note) {
       }, n.protocolContract) as { fundingAmount: bigint; poolAmount: bigint };
       contractInfo.value = info;
     } catch (error) {
-      console.error('Failed to get contract info:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to get contract info';
+      swalAlert.error(errorMessage);
     } finally {
       loading.value = false;
     }

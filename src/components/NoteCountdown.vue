@@ -20,7 +20,7 @@
 </template>
 <script setup lang="ts">
 import type { Note } from 'src/common/types';
-import { onMounted, type PropType, ref } from 'vue';
+import { onMounted, onBeforeUnmount, type PropType, ref } from 'vue';
 
 const props = defineProps({
   note: {
@@ -34,17 +34,31 @@ const h = ref(0);
 const m = ref(0);
 const s = ref(0);
 
+let countdownTimer: number | undefined;
 
 onMounted(() => {
   startCountdown();
 });
 
+onBeforeUnmount(() => {
+  if (countdownTimer !== undefined) {
+    clearInterval(countdownTimer);
+    countdownTimer = undefined;
+  }
+});
+
 function startCountdown() {
-  const countdown = setInterval(() => {
+  if (countdownTimer !== undefined) {
+    clearInterval(countdownTimer);
+  }
+  countdownTimer = window.setInterval(() => {
     const now = new Date();
     const diff = Number(props.note.expiryTime) * 1000 - now.getTime();
     if (diff <= 0) {
-      clearInterval(countdown);
+      if (countdownTimer !== undefined) {
+        clearInterval(countdownTimer);
+        countdownTimer = undefined;
+      }
       d.value = 0;
       h.value = 0;
       m.value = 0;
@@ -56,7 +70,6 @@ function startCountdown() {
     m.value = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     s.value = Math.floor((diff % (1000 * 60)) / 1000);
   }, 1000);
-  return countdown;
 }
 
 </script>

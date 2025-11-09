@@ -107,6 +107,9 @@ async function writeContract(args: WriteArgs) {
     loading.value = true;
     transactionError.value = '';
     const { walletProvider } = useAppKitProvider('eip155');
+    if (!walletProvider) {
+      throw new Error('Wallet not connected. Please connect your wallet first.');
+    }
     const etherProvider = new BrowserProvider(walletProvider as Eip1193Provider);
     const signer = await etherProvider.getSigner();
     let contractAddress = FilNoteAddress;
@@ -129,8 +132,23 @@ async function writeContract(args: WriteArgs) {
       result.value = await contractMethod(...args.args);
     }
     startWaiting();
-    await etherProvider.waitForTransaction(result.value.hash, 1);
-    confirmSuccessful();
+    try {
+      await etherProvider.waitForTransaction(result.value.hash, 1);
+      confirmSuccessful();
+    } catch (waitError) {
+      // Transaction was sent but confirmation failed
+      const waitErrorMessage = waitError instanceof Error ? waitError.message : 'Transaction confirmation timeout';
+      loading.value = false;
+      isConfirming.value = false;
+      if (props.alertError) {
+        swalAlert.error(`Transaction sent but confirmation failed: ${waitErrorMessage}`);
+      } else {
+        transactionError.value = `Transaction sent but confirmation failed: ${waitErrorMessage}`;
+      }
+      // Still call onSuccess as transaction was sent
+      props.onSuccess?.();
+      return result.value;
+    }
     return result.value;
   } catch (error) {
     let errorMessage = await handleEthErr(error as object & { message: string });
@@ -149,6 +167,7 @@ async function writeContract(args: WriteArgs) {
 
 function confirmSuccessful() {
   isConfirmed.value = true;
+  loading.value = false;
   props.onSuccess?.();
 }
 

@@ -69,8 +69,15 @@ watch(accountData, (newVal) => {
 
 
 async function getOwnerAddress() {
-  const result = await contractRead({ functionName: 'owner', args: [] }) as string;
-  dAppStore.value.setOwnerAddress(`${result}`);
+  try {
+    const result = (await contractRead({ functionName: 'owner', args: [] })) as string;
+    if (result) {
+      dAppStore.value.setOwnerAddress(`${result}`);
+    }
+  } catch (error) {
+    // Silently fail - owner address is not critical for basic functionality
+    console.warn('Failed to get owner address:', error);
+  }
 }
 
 

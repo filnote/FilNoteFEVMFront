@@ -68,8 +68,14 @@ function closeCreateNote() {
 function createNoteSuccess() {
   props.refreshData?.();
   swalAlert.success('Note created successfully');
-  props.refreshData?.();
+  resetForm();
   closeCreateNote();
+}
+
+function resetForm() {
+  form.value.targetAmount = 0;
+  form.value.interestRateBps = 20;
+  form.value.borrowingDays = 0;
 }
 
 function createNote(writeContract: (args: WriteArgs) => Promise<WriteContractResult | undefined>) {
@@ -77,8 +83,6 @@ function createNote(writeContract: (args: WriteArgs) => Promise<WriteContractRes
   void writeContract({
     functionName: 'createNote',
     args: [targetAmount, form.value.interestRateBps, form.value.borrowingDays],
-  }).then((result) => {
-    console.log(result);
   });
 }
 </script>

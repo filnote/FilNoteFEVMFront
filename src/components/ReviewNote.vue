@@ -1,6 +1,6 @@
 <template>
   <q-dialog v-model="visible" persistent>
-    <WriteContract :on-success="refreshData">
+    <WriteContract :on-success="handleReviewSuccess">
       <template #body="{ props }">
         <q-card-section class="bg-primary text-center">
           <h3 class="text-white text-2xl font-bold">Review Note</h3>
@@ -33,7 +33,7 @@ const visible = ref(false);
 const noteId = ref<bigint>(BigInt(0));
 const dAppStore = ref(useDAppStore());
 
-defineProps({
+const props = defineProps({
   refreshData: {
     type: Function,
     default: () => { },
@@ -50,6 +50,12 @@ function showReviewNote(id: bigint) {
 
 function hideReviewNote() {
   visible.value = false;
+  resetForm();
+}
+
+function handleReviewSuccess() {
+  hideReviewNote();
+  props.refreshData?.();
 }
 
 async function reviewNote(writeProps: WriteProps) {
@@ -72,14 +78,19 @@ async function reviewNote(writeProps: WriteProps) {
     uid = uploadResponse.data;
   } catch (error) {
     swalAlert.error(`${error instanceof Error ? error.message : 'Unknown error'}`);
+    return;
   } finally {
     writeProps.setLoading(false);
   }
   if (!uid) {
     return;
   }
-  console.log(uid);
-  void writeProps.write({ functionName: 'pendingNote', args: [noteId.value, uid] })
+  void writeProps.write({ functionName: 'pendingNote', args: [noteId.value, uid] });
+}
+
+function resetForm() {
+  form.value.contractHash = '';
+  form.value.contractFile = undefined;
 }
 
 

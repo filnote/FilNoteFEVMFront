@@ -5,7 +5,8 @@
         <div class="text-lg font-bold font-mono">
           #{{ item.id }}
         </div>
-        <WriteContract :show-box-loading="false" :alert-error="true" :no-card="true">
+        <WriteContract :show-box-loading="false" :alert-error="true" :no-card="true"
+          :on-success="handleOperationSuccess">
           <template #body="{ props }">
             <div class="flex items-center space-x-3">
               <q-btn :loading="props.loading && action === 'close'" outline v-if="showCloseButton()" label="Close Note"
@@ -171,6 +172,10 @@ function investNote(write: (args: WriteArgs) => Promise<WriteContractResult | un
       value: props.item.targetAmount,
     });
   });
+}
 
+function handleOperationSuccess() {
+  props.refreshData?.();
+  action.value = '';
 }
 </script>

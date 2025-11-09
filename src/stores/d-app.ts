@@ -36,10 +36,18 @@ export const useDAppStore = defineStore('d-app', {
       }
     },
     async signMessage(message: string): Promise<string> {
-      const { walletProvider } = useAppKitProvider('eip155');
-      const etherProvider = new BrowserProvider(walletProvider as Eip1193Provider);
-      const signer = await etherProvider.getSigner();
-      return await signer.signMessage(message);
+      try {
+        const { walletProvider } = useAppKitProvider('eip155');
+        if (!walletProvider) {
+          throw new Error('Wallet not connected');
+        }
+        const etherProvider = new BrowserProvider(walletProvider as Eip1193Provider);
+        const signer = await etherProvider.getSigner();
+        return await signer.signMessage(message);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to sign message';
+        throw new Error(errorMessage);
+      }
     },
   },
 });
