@@ -75,6 +75,7 @@ const agreementDetails = ref<{ showAgreementDetails: (note: Note) => void }>();
 async function getNotes() {
   try {
     allNotes.value = await readContract.value?.read({ functionName: 'getNotes', args: [0, 10] }) as Note[];
+    console.log(allNotes.value);
     filterNotes();
   } catch (error) {
     console.error(error);

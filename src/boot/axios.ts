@@ -1,12 +1,13 @@
 import { defineBoot } from '#q-app/wrappers';
 import axios, { type AxiosInstance } from 'axios';
-
+import { swalAlert } from 'src/common/tools';
 declare module 'vue' {
   interface ComponentCustomProperties {
     $axios: AxiosInstance;
     $api: AxiosInstance;
   }
 }
+const apiBaseUrl = process.env.API_BASE_URL;
 
 // Be careful when using SSR for cross-request state pollution
 // due to creating a Singleton instance here;
@@ -14,11 +15,27 @@ declare module 'vue' {
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const api = axios.create({ baseURL: 'https://api.example.com' });
+const api = axios.create({ baseURL: apiBaseUrl ?? '' });
 
 export default defineBoot(({ app }) => {
-  // for use inside Vue files (Options API) through this.$axios and this.$api
-
+  api.interceptors.response.use(
+    function (response) {
+      const data = response.data;
+      if (data.status !== 0) {
+        swalAlert.error(data.message);
+        return Promise.reject(new Error(data.message));
+      }
+      return data;
+    },
+    function (error) {
+      const errorMessage = error.response.data.message;
+      if (errorMessage) {
+        swalAlert.error(errorMessage);
+        return Promise.reject(new Error(errorMessage));
+      }
+      return Promise.reject(error instanceof Error ? error : new Error(String(error)));
+    },
+  );
   app.config.globalProperties.$axios = axios;
   // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
   //       so you won't necessarily have to import axios in each vue file
@@ -28,4 +45,4 @@ export default defineBoot(({ app }) => {
   //       so you can easily perform requests against your app's API
 });
 
-export { api };
+export { api, apiBaseUrl };

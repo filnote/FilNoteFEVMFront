@@ -32,3 +32,9 @@ export interface WriteArgs {
 export interface WriteContractResult {
   hash: string;
 }
+
+export interface WriteProps {
+  write: (args: WriteArgs) => Promise<WriteContractResult | undefined>;
+  loading: boolean;
+  setLoading: (value: boolean) => void;
+}

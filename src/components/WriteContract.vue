@@ -1,6 +1,7 @@
 <template>
   <q-card v-if="!noCard" flat class="relative w-[380px]">
-    <slot name="body" :props="{ write: writeContract, loading }"></slot>
+    <slot name="body" :props="{ write: writeContract, loading, setLoading: (value: boolean) => loading = value }">
+    </slot>
     <q-banner v-if="transactionError" class="bg-red-100 text-red-500 break-words break-all leading-loose text-xs">
       {{ transactionError }}
     </q-banner>
@@ -9,7 +10,8 @@
     </q-inner-loading>
   </q-card>
   <div v-else>
-    <slot name="body" :props="{ write: writeContract, loading }"></slot>
+    <slot name="body" :props="{ write: writeContract, loading, setLoading: (value: boolean) => loading = value }">
+    </slot>
   </div>
 
 

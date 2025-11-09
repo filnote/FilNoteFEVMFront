@@ -1202,4 +1202,8 @@ ul.note-countdown {
   .lg\:w-\[520px\] {
     width: 520px;
   }
+
+  .lg\:w-\[800px\] {
+    width: 800px;
+  }
 }
