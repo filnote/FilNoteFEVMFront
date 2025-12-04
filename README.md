@@ -21,7 +21,9 @@ The application runs on the **Filecoin Calibration testnet**, providing a decent
 ### 2. Note Review
 
 - Auditors can review notes in `INIT` status
-- Upload PDF contract files
+- Upload PDF contract file (required)
+- Optionally upload privacy certificate file (will be encrypted)
+- Add public information (jsonData) - required when privacy certificate is provided
 - System generates verification UUID requiring wallet signature
 - After review, note status changes to `PENDING`
 
@@ -29,6 +31,7 @@ The application runs on the **Filecoin Calibration testnet**, providing a decent
 
 - Investors can invest in notes with `PENDING` status
 - Must read and accept risk disclosure statement (10-second countdown)
+- Can view contract and privacy certificate preview (public information) before investment
 - Investment amount equals the note's target amount
 - After investment, note status changes to `ACTIVE`
 
@@ -235,6 +238,8 @@ src/
 │   │                            # - Call smart contract to create note
 │   ├── InvestmentRecognition.vue # Investment risk confirmation dialog
 │   │                              # - Display risk disclosure statement
+│   │                              # - View contract PDF
+│   │                              # - View privacy certificate preview (public information)
 │   │                              # - 10-second countdown
 │   │                              # - Confirm investment operation
 │   ├── NoteItem.vue            # Note card component
@@ -247,10 +252,12 @@ src/
 │   │                            # - Provide read method
 │   │                            # - Encapsulate contract reading logic
 │   ├── ReviewNote.vue          # Review note dialog
-│   │                            # - Upload contract file (PDF)
+│   │                            # - Upload contract file (PDF, required)
+│   │                            # - Upload privacy certificate file (PDF, optional)
+│   │                            # - Add public information (jsonData, required if privacy certificate provided)
 │   │                            # - Get verification UUID
 │   │                            # - Wallet signature
-│   │                            # - Upload file to backend
+│   │                            # - Upload files to backend
 │   │                            # - Call smart contract to review
 │   └── WriteContract.vue       # Write contract component (slot component)
 │                                # - Provide write method
@@ -369,7 +376,7 @@ There are three roles in the application:
 Main methods:
 
 - `createNote(targetAmount, interestRateBps, borrowingDays)`: Create a note
-- `pendingNote(noteId, contractHash)`: Review a note
+- `pendingNote(noteId, contractHash, encryptedPrivacyCertificateHash, privacyCredentialsAbridgedHash)`: Review a note
 - `invest(noteId)`: Invest in a note (requires sending FIL)
 - `closeNote(noteId)`: Close a note
 - `getNotes(offset, limit)`: Get note list
@@ -405,10 +412,15 @@ Content-Type: multipart/form-data
 
 - **Parameters**:
   - `signature`: Signature string
-  - `file`: PDF contract file
+  - `contract`: PDF contract file (required)
+  - `privacyCertificate`: PDF privacy certificate file (optional, will be encrypted)
+  - `jsonData`: JSON string of public information (required if privacyCertificate is provided)
   - `address`: Wallet address
-- **Returns**: Contract hash (UUID)
-- **Usage**: Upload review contract file, returns contract hash for on-chain recording
+- **Returns**: Object containing:
+  - `contractHash`: IPFS hash of contract file
+  - `encryptedPrivacyCertificateHash`: Encrypted IPFS hash of privacy certificate (if provided)
+  - `privacyCredentialsAbridgedHash`: IPFS hash of public information JSON (if provided)
+- **Usage**: Upload review contract file and optional privacy certificate, returns hashes for on-chain recording
 
 ### Utility Functions
 
@@ -451,19 +463,24 @@ Content-Type: multipart/form-data
 #### Review Note Workflow
 
 1. Auditor clicks "Review" button on note card
-2. Upload PDF contract file
-3. System calls API to get verification UUID
-4. User signs verification message with wallet
-5. Upload contract file and signature to backend API
-6. Backend returns contract hash (UUID)
-7. Call `pendingNote` contract method with note ID and contract hash
-8. Wait for transaction confirmation
-9. Note status changes to `PENDING`
+2. Upload PDF contract file (required)
+3. Optionally upload privacy certificate file (will be encrypted)
+4. If privacy certificate is uploaded, add public information (jsonData) as preview
+5. System calls API to get verification UUID
+6. User signs verification message with wallet
+7. Upload files and signature to backend API
+8. Backend returns contract hash, encrypted privacy certificate hash (if provided), and privacy credentials abridged hash (if jsonData provided)
+9. Call `pendingNote` contract method with note ID, contract hash, encrypted privacy certificate hash, and privacy credentials abridged hash
+10. Wait for transaction confirmation
+11. Note status changes to `PENDING`
 
 #### Invest Note Workflow
 
 1. Investor clicks "Invest Note" on note with `PENDING` status
-2. Risk disclosure statement dialog appears
+2. Risk disclosure statement dialog appears with three tabs:
+   - Risk Statement: Risk disclosure statement
+   - Contract: View contract PDF
+   - Privacy Preview: View privacy certificate preview (public information from jsonData)
 3. User must wait for 10-second countdown
 4. Click "Accept risk" to confirm
 5. Call `invest` contract method, send FIL equal to target amount

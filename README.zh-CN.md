@@ -21,7 +21,9 @@ FilNoteFEVM 是一个去中心化应用，允许用户创建、审核和投资 F
 ### 2. 票据审核
 
 - 审计员可以审核处于 `INIT` 状态的票据
-- 需要上传 PDF 格式的合同文件
+- 需要上传 PDF 格式的合同文件（必填）
+- 可选择上传隐私凭证文件（将被加密）
+- 添加公开信息（jsonData）- 当提供隐私凭证时为必填
 - 系统会生成验证 UUID 并需要钱包签名
 - 审核通过后票据状态变为 `PENDING`
 
@@ -29,6 +31,7 @@ FilNoteFEVM 是一个去中心化应用，允许用户创建、审核和投资 F
 
 - 投资者可以投资处于 `PENDING` 状态的票据
 - 投资前需要阅读并接受风险披露声明（10 秒倒计时）
+- 可以查看合同和隐私凭证预览（公开信息）
 - 投资金额等于票据的目标金额
 - 投资成功后票据状态变为 `ACTIVE`
 
@@ -233,6 +236,8 @@ src/
 │   │                            # - 调用智能合约创建票据
 │   ├── InvestmentRecognition.vue # 投资风险确认对话框
 │   │                              # - 显示风险披露声明
+│   │                              # - 查看合同 PDF
+│   │                              # - 查看隐私凭证预览（公开信息）
 │   │                              # - 10 秒倒计时
 │   │                              # - 确认投资操作
 │   ├── NoteItem.vue            # 票据卡片组件
@@ -245,7 +250,9 @@ src/
 │   │                            # - 提供 read 方法
 │   │                            # - 封装合约读取逻辑
 │   ├── ReviewNote.vue          # 审核票据对话框
-│   │                            # - 上传合同文件（PDF）
+│   │                            # - 上传合同文件（PDF，必填）
+│   │                            # - 上传隐私凭证文件（PDF，可选）
+│   │                            # - 添加公开信息（jsonData，提供隐私凭证时为必填）
 │   │                            # - 获取验证 UUID
 │   │                            # - 钱包签名
 │   │                            # - 上传文件到后端
@@ -367,7 +374,7 @@ INIT → CLOSED (已关闭)
 主要方法：
 
 - `createNote(targetAmount, interestRateBps, borrowingDays)`: 创建票据
-- `pendingNote(noteId, contractHash)`: 审核票据
+- `pendingNote(noteId, contractHash, encryptedPrivacyCertificateHash, privacyCredentialsAbridgedHash)`: 审核票据
 - `invest(noteId)`: 投资票据（需要发送 FIL）
 - `closeNote(noteId)`: 关闭票据
 - `getNotes(offset, limit)`: 获取票据列表
@@ -403,10 +410,15 @@ Content-Type: multipart/form-data
 
 - **参数**:
   - `signature`: 签名字符串
-  - `file`: PDF 合同文件
+  - `contract`: PDF 合同文件（必填）
+  - `privacyCertificate`: PDF 隐私凭证文件（可选，将被加密）
+  - `jsonData`: 公开信息的 JSON 字符串（提供隐私凭证时为必填）
   - `address`: 钱包地址
-- **返回**: 合同哈希（UUID）
-- **用途**: 上传审核合同文件，返回合同哈希用于链上记录
+- **返回**: 包含以下字段的对象：
+  - `contractHash`: 合同文件的 IPFS 哈希
+  - `encryptedPrivacyCertificateHash`: 加密的隐私凭证 IPFS 哈希（如果提供）
+  - `privacyCredentialsAbridgedHash`: 公开信息 JSON 的 IPFS 哈希（如果提供）
+- **用途**: 上传审核合同文件和可选的隐私凭证，返回哈希用于链上记录
 
 ### 工具函数说明
 
@@ -449,19 +461,24 @@ Content-Type: multipart/form-data
 #### 审核票据流程
 
 1. 审计员在票据卡片上点击"Review"按钮
-2. 上传 PDF 合同文件
-3. 系统调用 API 获取验证 UUID
-4. 用户使用钱包签名验证消息
-5. 上传合同文件和签名到后端 API
-6. 后端返回合同哈希（UUID）
-7. 调用 `pendingNote` 合约方法，传入票据 ID 和合同哈希
-8. 等待交易确认
-9. 票据状态变为 `PENDING`
+2. 上传 PDF 合同文件（必填）
+3. 可选择上传隐私凭证文件（将被加密）
+4. 如果上传了隐私凭证，添加公开信息（jsonData）作为预览
+5. 系统调用 API 获取验证 UUID
+6. 用户使用钱包签名验证消息
+7. 上传文件和签名到后端 API
+8. 后端返回合同哈希、加密的隐私凭证哈希（如果提供）和公开信息哈希（如果提供）
+9. 调用 `pendingNote` 合约方法，传入票据 ID、合同哈希、加密的隐私凭证哈希和公开信息哈希
+10. 等待交易确认
+11. 票据状态变为 `PENDING`
 
 #### 投资票据流程
 
 1. 投资者在 `PENDING` 状态的票据上点击"Invest Note"
-2. 显示风险披露声明对话框
+2. 显示风险披露声明对话框，包含三个标签页：
+   - 风险声明：风险披露声明
+   - 合同：查看合同 PDF
+   - 隐私预览：查看隐私凭证预览（来自 jsonData 的公开信息）
 3. 用户必须等待 10 秒倒计时
 4. 点击"Accept risk"确认
 5. 调用 `invest` 合约方法，发送等于目标金额的 FIL
