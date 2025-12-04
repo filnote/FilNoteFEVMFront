@@ -85,7 +85,7 @@ async function reviewNote(writeProps: WriteProps) {
   if (!uid) {
     return;
   }
-  void writeProps.write({ functionName: 'pendingNote', args: [noteId.value, uid] });
+  void writeProps.write({ functionName: 'pendingNote', args: [noteId.value, uid, ''] });
 }
 
 function resetForm() {

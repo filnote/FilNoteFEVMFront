@@ -105,7 +105,7 @@ async function createNote(writeContract: (args: WriteArgs) => Promise<WriteContr
   const targetAmount = filToWei(form.value.targetAmount);
   void writeContract({
     functionName: 'createNote',
-    args: [targetAmount, form.value.interestRateBps, form.value.borrowingDays],
+    args: [targetAmount, form.value.interestRateBps, form.value.borrowingDays, ''],
   });
 }
 </script>
