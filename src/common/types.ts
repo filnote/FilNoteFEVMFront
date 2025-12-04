@@ -12,6 +12,8 @@ export interface Note {
   platformFeeRateBps: number;
   platformFeeAmount: bigint;
   expiryTime: number;
+  privacyCertificateHash: string;
+  privacyCredentialsAbridgedHash: string;
 }
 export type ReadArgs = {
   functionName: string;

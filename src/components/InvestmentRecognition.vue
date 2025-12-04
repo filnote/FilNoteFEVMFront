@@ -1,13 +1,14 @@
 <template>
   <q-dialog v-model="visible">
     <q-card class="lg:w-[520px]">
-      <q-card-section class="bg-primary text-center">
+      <q-card-section class="bg-primary text-center space-y-3">
         <h3 class="text-white text-2xl font-bold">
           Risk confirmation
         </h3>
-        <q-tabs dense v-model="tab" active-color="white" class="text-white">
-          <q-tab name="agreement" label="Risk Disclosure Statement" />
+        <q-tabs dense v-model="tab" align="center" active-color="white" class="text-white">
+          <q-tab name="agreement" label="Risk Statement" />
           <q-tab name="contract" label="Contract" />
+          <q-tab name="privacy" label="Privacy Preview" />
         </q-tabs>
       </q-card-section>
       <q-tab-panels v-model="tab">
@@ -93,6 +94,28 @@
             </div>
           </q-scroll-area>
         </q-tab-panel>
+        <q-tab-panel name="privacy" class="p-0">
+          <q-scroll-area class="h-[500px]">
+            <div v-if="privacyDataLoading" class="text-center text-grey py-10">
+              <q-spinner color="primary" size="3em" />
+              <p class="mt-4">Loading privacy certificate preview...</p>
+            </div>
+            <q-list v-else-if="privacyData" separator>
+              <q-item v-for="(value, key) in privacyData" :key="key">
+                <q-item-section side>
+                  {{ key }}
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ String(value) }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+            <div v-else class="text-center text-grey py-10">
+              <q-icon name="lock" size="3em" />
+              <p class="mt-4">No privacy certificate preview available</p>
+            </div>
+          </q-scroll-area>
+        </q-tab-panel>
       </q-tab-panels>
       <q-card-section class="flex justify-center space-x-2">
         <q-btn label="Cancel" color="negative" unelevated @click="onCancel" />
@@ -118,10 +141,53 @@ let countdownTimer: number | undefined;
 const tab = ref('agreement');
 const currentPage = ref(1);
 const totalPages = ref(0);
+const privacyData = ref<Record<string, unknown> | null>(null);
+const privacyDataLoading = ref(false);
 
 const contractUrl = computed(() => {
   if (!noteRef.value?.contractHash) return null;
   return noteContractUrl(noteRef.value.contractHash);
+});
+
+const privacyPreviewUrl = computed(() => {
+  if (!noteRef.value?.privacyCredentialsAbridgedHash) return null;
+  return `https://indigo-electronic-camel-507.mypinata.cloud/ipfs/${noteRef.value.privacyCredentialsAbridgedHash}`;
+});
+
+async function loadPrivacyData() {
+  if (!privacyPreviewUrl.value) {
+    privacyData.value = null;
+    return;
+  }
+  privacyDataLoading.value = true;
+  try {
+    const response = await fetch(privacyPreviewUrl.value);
+    if (response.ok) {
+      const data = await response.json();
+      privacyData.value = data;
+    } else {
+      privacyData.value = null;
+    }
+  } catch (error) {
+    console.error('Failed to load privacy data:', error);
+    privacyData.value = null;
+  } finally {
+    privacyDataLoading.value = false;
+  }
+}
+
+watch(privacyPreviewUrl, () => {
+  if (privacyPreviewUrl.value) {
+    void loadPrivacyData();
+  } else {
+    privacyData.value = null;
+  }
+});
+
+watch(tab, (newTab) => {
+  if (newTab === 'privacy' && privacyPreviewUrl.value && !privacyData.value && !privacyDataLoading.value) {
+    void loadPrivacyData();
+  }
 });
 
 watch(contractUrl, () => {

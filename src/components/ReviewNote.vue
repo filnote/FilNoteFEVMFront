@@ -1,39 +1,39 @@
 <template>
   <q-dialog v-model="visible" persistent>
-    <WriteContract :on-success="handleReviewSuccess">
+    <WriteContract :on-success="handleReviewSuccess" :no-card="true">
       <template #body="{ props }">
-        <q-card-section class="bg-primary text-center">
-          <h3 class="text-white text-2xl font-bold">Review Note</h3>
-        </q-card-section>
-        <q-card-section>
-          <q-form @submit="reviewNote(props)">
-            <div>
-              <q-file :rules="[(val) => !emptyString(val) || 'Contract file is required']" v-model="form.contractFile"
-                label="Please upload the contract file (Required)" outlined accept=".pdf" />
-            </div>
-            <div class="mt-3">
-              <q-file v-model="form.privacyCertificateFile"
-                label="Please upload the privacy certificate file (Optional)" outlined accept=".pdf" />
-            </div>
-            <div class="mt-3">
-              <div class="text-subtitle2 q-mb-sm">Public Information (Optional)</div>
-              <div v-for="(item, index) in form.jsonData" :key="index" class="row q-gutter-sm q-mb-sm">
-                <q-input v-model="item.key" label="Key" outlined dense class="col-5"
-                  :rules="[(val) => !!val || 'Key is required']" />
-                <q-input v-model="item.value" label="Value" outlined dense class="col-5"
-                  :rules="[(val) => !!val || 'Value is required']" />
-                <q-btn icon="delete" color="negative" outline unelevated dense @click="removeJsonDataItem(index)"
-                  class="col-1" />
+        <q-card style="min-width: 500px">
+          <q-card-section class="bg-primary text-white">
+            <div class="text-h6 text-center">Review Note</div>
+          </q-card-section>
+          <q-card-section>
+            <q-form @submit="reviewNote(props)" class="space-y-2">
+              <q-file v-model="form.contractFile" label="Contract File *" outlined accept=".pdf"
+                :rules="[(val) => !emptyString(val) || 'Required']" />
+              <q-file v-model="form.privacyCertificateFile" label="Privacy Certificate File (Optional)" outlined
+                accept=".pdf" />
+              <div class="py-2 px-4 bg-grey-1 rounded-md space-y-2">
+                <div class="flex items-center justify-between">
+                  <div class="font-bold">
+                    Public Information
+                    <span v-if="form.privacyCertificateFile" class="text-negative">*</span>
+                    <span v-else class="text-grey-6">(Optional)</span>
+                  </div>
+                  <q-btn icon="add" label="Add Field" outline @click="addJsonDataItem" />
+                </div>
+                <div v-for="(item, index) in form.jsonData" :key="index" class="flex items-center space-x-3">
+                  <q-input v-model="item.key" label="Key" outlined dense class="flex-1" />
+                  <q-input v-model="item.value" label="Value" outlined dense class="flex-1" />
+                  <q-btn icon="delete" flat dense @click="removeJsonDataItem(index)" />
+                </div>
               </div>
-              <q-btn icon="add" label="Add Field" color="primary" outline unelevated dense @click="addJsonDataItem"
-                class="q-mt-sm" />
-            </div>
-            <div class="flex justify-between space-x-2 mt-5">
-              <q-btn class="flex-1" type="submit" label="Review Note" color="primary" unelevated />
-              <q-btn type="button" icon="close" outline color="negative" unelevated @click="hideReviewNote" />
-            </div>
-          </q-form>
-        </q-card-section>
+              <div class="flex items-center space-x-4">
+                <q-btn class="flex-1" label="Cancel" outline @click="hideReviewNote" />
+                <q-btn class="flex-1" type="submit" label="Submit" color="primary" :loading="props.loading" />
+              </div>
+            </q-form>
+          </q-card-section>
+        </q-card>
       </template>
     </WriteContract>
   </q-dialog>
@@ -98,6 +98,18 @@ async function reviewNote(writeProps: WriteProps) {
     if (!form.value.contractFile) {
       swalAlert.error('Contract file is required');
       return;
+    }
+    // If privacy certificate is provided, jsonData (preview version) is required [如果提供了隐私凭证，则 jsonData（预览版本）是必填的]
+    if (form.value.privacyCertificateFile) {
+      const validJsonData = form.value.jsonData.filter(
+        (item) => item.key && item.value,
+      );
+      if (validJsonData.length === 0) {
+        swalAlert.error(
+          'Public information (preview of privacy certificate) is required when privacy certificate file is provided',
+        );
+        return;
+      }
     }
     writeProps.setLoading(true);
     const address = dAppStore.value.address;
